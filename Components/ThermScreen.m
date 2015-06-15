@@ -53,9 +53,9 @@ if strcmp(orientation,'vertical')
         pause(0.01);
         [~,~,keyCode]=KbCheck; 
         if find(keyCode)==32
-            s=s+0.5;
+            s=s+1;
         else 
-            s=s-.5;
+            s=s-1;
         end
         s=min(s,100);
         s=max(s,0);
