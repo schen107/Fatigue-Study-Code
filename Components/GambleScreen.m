@@ -1,5 +1,12 @@
 function [choice,ReactTime] = GambleScreen(window,flip,sure,time)
 
+% inputs: flip - gamble value
+% sure - safe value
+% time - time limit for choosing
+
+% outputs: choice - flip (1) vs sure (0)
+% ReactTime - time it took to make the choice (s)
+
 white = WhiteIndex(window); black = BlackIndex(window);
 HideCursor(window);
 [xpix,ypix] = Screen('WindowSize',window);
