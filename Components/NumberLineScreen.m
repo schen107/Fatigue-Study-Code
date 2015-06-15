@@ -1,5 +1,8 @@
 function [EffortReport,ReactTime] = NumberLineScreen(window)
 
+% outputs: EffortReport - value on number line (%MVC)
+% ReactTime - time it took to make choice (s)
+
 white = WhiteIndex(window); black = BlackIndex(window);
 HideCursor(window);
 [xpix,ypix] = Screen('WindowSize',window);
