@@ -14,5 +14,5 @@ while GetSecs-t0 <= time
     Screen('DrawLines',window,coords,width,white,[xcenter,ycenter]);
     Screen('Flip',window);
 end
-sca
+
 end

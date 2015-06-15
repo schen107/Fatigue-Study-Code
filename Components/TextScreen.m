@@ -7,7 +7,7 @@ function [key,volt] = TextScreen(window,message,varargin)
 white = WhiteIndex(window); black = BlackIndex(window);
 HideCursor(window);
 Screen('TextFont',window,'Ariel');
-Screen('TextSize',window,25);
+Screen('TextSize',window,40);
 
 if nargin == 3
     volt = NaN;
@@ -48,6 +48,6 @@ elseif nargin == 4
         DrawFormattedText(window,message,'center','center',white);
         Screen('Flip',window);
     end
-    sca
+
 end
 end
