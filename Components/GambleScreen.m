@@ -1,7 +1,7 @@
 function [choice,ReactTime] = GambleScreen(window,flip,sure,time)
 
-% inputs: flip - gamble value
-% sure - safe value
+% inputs: flip - gamble value (0-100)
+% sure - safe value(0-100)
 % time - time limit for choosing
 
 % outputs: choice - flip (1) vs sure (0)
@@ -74,7 +74,5 @@ while GetSecs-t0 <= time
         break
     end
 end
-
-sca
 
 end

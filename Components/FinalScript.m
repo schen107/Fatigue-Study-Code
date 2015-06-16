@@ -23,7 +23,7 @@ sensor = 1;
 % For running only this phase
 % PsychDefaultSetup(2);screen=max(Screen('Screens'));
 % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-% 
+% MVC = 1;
 % sensor = 1;
 
 % sensor = analoginput('mcc');%Default sample rate: 1000
@@ -54,7 +54,7 @@ TextScreen(window,'End of Phase 1','key');
 % For running only this phase
 % PsychDefaultSetup(2);screen=max(Screen('Screens'));
 % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-% 
+% MVC = 1;
 % sensor = 1;
 
 % sensor = analoginput('mcc');%Default sample rate: 1000
@@ -100,7 +100,7 @@ TextScreen(window,'End of Phase 2','key');
 % For running only this phase
 PsychDefaultSetup(2);screen=max(Screen('Screens'));
 [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-
+MVC = 1;
 sensor = 1;
 
 % sensor = analoginput('mcc'); %Default sample rate: 1000
@@ -117,12 +117,12 @@ TextScreen(window,'GET READY',2);
 numRecallTrials = 3;
 MVClevels = [10 20 30 40 50 60 70 80]';
 MVClevels_3 = repmat(MVClevels,[numRecallTrials,1]);
-MVClevel_3_shuffle = MVClevels_3(randperm(numel(MVClevels_3)));
+MVClevels_3_shuffle = MVClevels_3(randperm(numel(MVClevels_3)));
 voltRecallTrial = NaN(1000,numel(MVClevels_3)); %DO WE NEED A VOLTAGE HERE?
 reportRecallTrial = zeros(numel(MVClevels_3),1);
 reacttimeRecallTrial = zeros(numel(MVClevels_3),1);
 count = 0;
-for i = MVClevelshuffle
+for i = MVClevels_3_shuffle
     count = count+1;
     [~,volt] = ThermScreen(window,sensor,MVC,i/100,'horizontal',4);
     voltRecallTrial(:,count) = abs(volt-sensor); %-baseline);
@@ -139,7 +139,7 @@ TextScreen(window,'End of Phase 3','key');
 % For running only this phase
 % PsychDefaultSetup(2);screen=max(Screen('Screens'));
 % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-% 
+% MVC = 1;
 % sensor = 1;
 
 % sensor = analoginput('mcc'); %Default sample rate: 1000
@@ -153,15 +153,24 @@ TextScreen(window,'End of Phase 3','key');
 TextScreen(window,'Phase 4: Please wait for instructions','key');
 TextScreen(window,'GET READY',2);
 
-numChoiceTrials = 50;
+numChoiceTrials = 51;
+ChoiceTrial = zeros(numChoiceTrials,1);
+reacttimeChoiceTrial = zeros(numChoiceTrials,1);
+for i = 1:numChoiceTrials
+    [choice,ReactTime] = GambleScreen(window,flip,sure,4); %FIGURE OUT FLIP/SURE VALUES
+    FixationCross(window,1+3*rand);
+    reacttimeChoiceTrial(i) = ReactTime;
+    ChoiceTrial(i) = choice; %NOTE: 1 = flip, 0 = sure
+end
 
 
 %% PHASE 5: FATIGUED CHOICE------------------------------------------------
 
 % For running only this phase
+Screen('Preference', 'SkipSyncTests', 1);
 PsychDefaultSetup(2);screen=max(Screen('Screens'));
 [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-
+MVC = 1; 
 sensor = 1;
 
 % sensor = analoginput('mcc'); %Default sample rate: 1000
@@ -178,13 +187,60 @@ TextScreen(window,'GET READY',2);
 MVCFatiguePercent = 60;
 FailureThreshold = 30;
 numFatigueTrials = 3;
+minFatigueTrials = 10;
+numFatiguedChoiceTrials = 51;
+FatiguedChoiceTrial = [];
+reacttimeFatiguedChoiceTrial = [];
 
 for i = 1:numFatigueTrials
     success = 0;
     failure = 0;
-    while failure/success<3/7 && success+failure>
+    % iniial mandatory trials
+    for n = 1:minFatigueTrials
+        outcome = ThermScreen(window,sensor,MVC,MVCFatiguePercent/100,'horizontal',4);
+        if outcome == 1
+            TextScreen(window,'SUCCESS',1);
+            success = success+1;
+        elseif outcome == 0
+            TextScreen(window,'FAILURE',1);
+            failure = failure+1;
+        end
+        FixationCross(window,3);
+    end
+    % conditional extra trials - if 30% failure, then criteria for fatigue
+    % is met
+    while success/failure > 7/3
+        outcome = ThermScreen(window,sensor,MVC,MVCFatiguePercent/100,'horizontal',4);
+        if outcome == 1
+            TextScreen(window,'SUCCESS',1);
+            success = success+1;
+        elseif outcome == 0
+            TextScreen(window,'FAILURE',1);
+            failure = failure+1;
+        end
+        FixationCross(window,3);
+    end
+    % Post-Fatigue Choice Trials
+    TempFatiguedChoice = zeros(numFatiguedChoiceTrials/numFatigueTrials,1);
+    % NOTE: numFatiguedChoiceTrials/numFatigueTrials only works if it's an
+    % integer
+    TempReacttime = zeros(numFatiguedChoiceTrials/numFatigueTrials,1);
+    for j = 1:numFatiguedChoiceTrials/numFatigueTrials
+        [choice,ReactTime] = GambleScreen(window,10,20,4); %FIGURE OUT FLIP/SURE VALUES
+        FixationCross(window,1+3*rand);
+        TempFatiguedChoice(j) = choice; %NOTE: 1 = flip, 0 = sure
+        TempReacttime(j) = ReactTime;
+    end
+    FatiguedChoiceTrial = append(FatiguedChoiceTrial,TempFatiguedChoice);
+    reacttimeFatiguedChoiceTrial = append(reacttimeFatiguedChoiceTrial,TempReacttime);
+end
 
 %% PHASE 6: TRIAL SELECTION------------------------------------------------
+
+TextScreen(window,'Phase 6: Please wait for instructions','key');
+TextScreen(window,'GET READY',2);
+
+
 
 %% END
 
