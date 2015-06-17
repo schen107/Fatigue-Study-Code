@@ -1,8 +1,10 @@
 % Final Script for Fatigue Study
-% Steven Chen
+% Created by Steven Chen
 
 clear; clc;
-cd 'Y:\Fatigue Code\Components'
+rng('shuffle'); %Generate new random seed
+cd 'Y:\Fatigue Code\Components' %For KKI computer
+% cd 'C:\Users\Steven Chen\Documents\MATLAB\Fatigue Code\Components' %For personal laptop
 %% Setup PsychToolBox------------------------------------------------------
 
 PsychDefaultSetup(2);screen=max(Screen('Screens'));
@@ -23,8 +25,7 @@ baseline = getsample(sensor);
 
 % For running only this phase
 
-% Dummy Vars
-% MVC = 1;
+% Dummy
 % sensor = 1;
 
 % PsychDefaultSetup(2);screen=max(Screen('Screens'));
@@ -39,30 +40,29 @@ baseline = getsample(sensor);
 TextScreen(window,'Phase 1: Please wait for instructions','key');
 TextScreen(window,'GET READY',1.5);
 
-numMVCtrials = 3;
-voltMVCTrial = NaN(1000,numMVCtrials);
-for i = 1:numMVCtrials
+numMVCTrials = 3;
+MVCTrial = NaN(1000,numMVCTrials); %rows-voltages, columns-trial #
+for i = 1:numMVCTrials
     [~,volt] = TextScreen(window,'SQUEEZE!',4,sensor,baseline);
-    voltMVCTrial(:,i) = abs(volt-baseline);
+    MVCTrial(:,i) = volt-baseline;
     FixationCross(window,1+3*rand) %random duration btwn 1-4 sec
 end
 
-MVC = max(max(voltMVCTrial));
-MVC = 0.8*MVC;
+MVC = max(max(MVCTrial));
+MVC = 0.8*MVC; 
+% ^We are adjusting the 'effort range' of 0 to 100 to map from no force, 
+% to 80% of the max force
 
 TextScreen(window,'End of Phase 1','key');
 
 %% PHASE 2: ASSOCIATION----------------------------------------------------
 
 % For running only this phase
-
 % Dummy Vars
 % MVC = 1;
 % sensor = 1;
-
 % PsychDefaultSetup(2);screen=max(Screen('Screens'));
 % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-
 % sensor = analoginput('mcc');%Default sample rate: 1000
 % chans=addchannel(sensor,0);
 % start(sensor);
@@ -72,18 +72,19 @@ TextScreen(window,'End of Phase 1','key');
 TextScreen(window,'Phase 2: Please wait for instructions','key');
 TextScreen(window,'GET READY',1.5);
 
-MVClevels = [10 20 30 40 50 60 70 80];
-MVClevelshuffle = MVClevels(randperm(numel(MVClevels)));
 numAssocTrials = 5;
-voltAssocTrial = NaN(numAssocTrials,numel(MVClevels),1000);
-count = 0;
+PercentMVClevels = [10 20 30 40 50 60 70 80];
+PercentMVClevelshuffle = PercentMVClevels(randperm(numel(PercentMVClevels)));
+AssocTrial = NaN(numAssocTrials,numel(PercentMVClevels),1000);
+% ^rows-trial# for each level, columns-MVC percentages, depth-voltages
 
-for i = MVClevelshuffle
+count = 0;
+for i = PercentMVClevelshuffle
     count = count+1;
     for n = 1:numAssocTrials
         TextScreen(window,num2str(i),2);
         [outcome,volt] = ThermScreen(window,sensor,baseline,MVC,i/100,'vertical',4);
-        voltAssocTrial(n,count,:) = abs(volt-baseline);
+        AssocTrial(n,count,:) = abs(volt-baseline);
         if outcome == 1
             TextScreen(window,'SUCCESS',2);
         elseif outcome == 0
@@ -96,7 +97,6 @@ for i = MVClevelshuffle
 end
 
 TextScreen(window,'End of Phase 2','key');
-sca;
 
 %% PHASE 3: RECALL---------------------------------------------------------
 
@@ -119,23 +119,28 @@ TextScreen(window,'Phase 3: Please wait for instructions','key');
 TextScreen(window,'GET READY',1.5);
 
 numRecallTrials = 3;
-MVClevels = [10 20 30 40 50 60 70 80];
-MVClevels_3 = repmat(MVClevels,[numRecallTrials,1]);
-MVClevels_3_shuffle = MVClevels_3(randperm(numel(MVClevels_3)));
-voltRecallTrial = NaN(1000,numel(MVClevels_3)); %DO WE NEED A VOLTAGE HERE?
-reportRecallTrial = zeros(numel(MVClevels_3),1);
-reacttimeRecallTrial = zeros(numel(MVClevels_3),1);
+PercentMVClevels = [10 20 30 40 50 60 70 80];
+PercentMVClevels_3 = repmat(PercentMVClevels,[numRecallTrials,1]);
+PercentMVClevels_3_shuffle = PercentMVClevels_3(randperm(numel(PercentMVClevels_3)));
+voltRecallTrial = NaN(numel(PercentMVClevels_3),1000); %%%%%%%%%%%DO WE NEED A VOLTAGE HERE? IF NOT, FIX LINE 131/132/138 AS WELL
+reportRecallTrial = zeros(numel(PercentMVClevels_3),1);
+reacttimeRecallTrial = zeros(numel(PercentMVClevels_3),1);
 count = 0;
-for i = MVClevels_3_shuffle
+for i = PercentMVClevels_3_shuffle
     count = count+1;
     [~,volt] = ThermScreen(window,sensor,baseline,MVC,i/100,'horizontal',4);
-    voltRecallTrial(:,count) = abs(volt-baseline);
+    voltRecallTrial(count,:) = volt-baseline;
     [EffortReport,ReactTime] = NumberLineScreen(window);
     reportRecallTrial(count) = EffortReport;
     reacttimeRecallTrial(count) = ReactTime;
 end
 
+RecallTrial = [PercentMVClevels_3_shuffle' reportRecallTrial ... 
+    reacttimeRecallTrial voltRecallTrial];
+% ^rows-recall trial#, column1-actual MVC percentage, column2-reported MVC
+% percentage, column3-reaction time, column4-1003-voltages
 TextScreen(window,'REST',60);
+
 TextScreen(window,'End of Phase 3','key');
 
 %% PHASE 4: CHOICE---------------------------------------------------------
@@ -162,8 +167,9 @@ load('Gambles_12_5.mat');
 gambles = Gambles_12_5;
 [r,~] = size(gambles);
 gambleShuffled = gambles(randperm(r),:);
+
 numChoiceTrials = r;
-ChoiceTrial = zeros(numChoiceTrials,1);
+choiceChoiceTrial = zeros(numChoiceTrials,1);
 reacttimeChoiceTrial = zeros(numChoiceTrials,1);
 for i = 1:numChoiceTrials
     flip = gambleShuffled(i,2);
@@ -171,11 +177,16 @@ for i = 1:numChoiceTrials
     [choice,ReactTime] = GambleScreen(window,flip,sure,4);
     FixationCross(window,1+3*rand);
     reacttimeChoiceTrial(i) = ReactTime;
-    ChoiceTrial(i) = choice; %NOTE: 1 = flip, 0 = sure
+    choiceChoiceTrial(i) = choice; %NOTE: 1 = flip, 0 = sure
 end
 
+ChoiceTrial = [gambleShuffled(:,[1 2]) choiceChoiceTrial ... 
+    reacttimeChoiceTrial];
+% ^rows-gamble trial#, column1-sure, column2-flip, column3-choice,
+% column4-reaction time
+
 TextScreen(window,'End of Phase 4','key');
-sca;
+
 %% PHASE 5: FATIGUED CHOICE------------------------------------------------
 
 % For running only this phase
@@ -202,16 +213,16 @@ TextScreen(window,'GET READY',1.5);
 gambleShuffled_1 = gambles(randperm(r),:);
 MVCFatiguePercent = 60;
 FailureThreshold = 50;
-numFatigueTrials = 2;
+numFatigueTrials = 2; %%%%%%%%%%%%%%HOW MANY DO WE DO? (TEST THIS)
 minFatigueContractions = 10;
 numFatiguedChoiceTrials = r;
-FatiguedChoiceTrial = [];
+choiceFatiguedChoiceTrial = [];
 reacttimeFatiguedChoiceTrial = [];
 
 for i = 1:numFatigueTrials
     success = 0;
     failure = 0;
-    % iniial mandatory trials
+    % iniial mandatory trials (adjusted by minFatigueContractions)
     for n = 1:minFatigueContractions
         outcome = ThermScreen(window,sensor,baseline,MVC,MVCFatiguePercent/100,'horizontal',4);
         if outcome == 1
@@ -224,7 +235,7 @@ for i = 1:numFatigueTrials
         FixationCross(window,3);
     end
     % conditional extra trials - if 50% failure, then criteria for fatigue
-    % is met
+    % is met (changed by altering FailureThreshold)
     while success/failure > (100-FailureThreshold)/FailureThreshold
         outcome = ThermScreen(window,sensor,baseline,MVC,MVCFatiguePercent/100,'horizontal',4);
         if outcome == 1
@@ -249,13 +260,20 @@ for i = 1:numFatigueTrials
         TempFatiguedChoice(j) = choice; %NOTE: 1 = flip, 0 = sure
         TempReacttime(j) = ReactTime;
     end
-    FatiguedChoiceTrial = append(FatiguedChoiceTrial,TempFatiguedChoice);
+    choiceFatiguedChoiceTrial = append(choiceFatiguedChoiceTrial,TempFatiguedChoice);
     reacttimeFatiguedChoiceTrial = append(reacttimeFatiguedChoiceTrial,TempReacttime);
 end
+
+FatiguedChoiceTrial = [gambleShuffled_1(:,[1 2]) choiceFatiguedChoiceTrial' ...
+    reacttimeFatiguedChoiceTrial];
+% ^rows-fatigued gamble trial#, column1-sure, column2-flip, column3-choice,
+% column4-reaction time
 
 TextScreen(window,'End of Phase 5','key');
 
 %% PHASE 6: TRIAL SELECTION------------------------------------------------
+
+%%%%%%%%%% HELP: DO WE DO ANY DATA COLLECTION HERE?
 
 % For running only this phase
 
@@ -278,15 +296,15 @@ TextScreen(window,'GET READY',1.5);
 PreTrials = zeros(5,1);
 PostTrials = zeros(5,1);
 for i = 1:5
-    if ChoiceTrial(i) == 1
+    if choiceChoiceTrial(i) == 1
         PreTrials(i) = gambleShuffled(i,2);
-    elseif ChoiceTrial(i) == 0
+    elseif choiceChoiceTrial(i) == 0
         PreTrials(i) = gambleShuffled(i,1);
     end
     
-    if FatiguedChoiceTrial(i) == 1
+    if choiceFatiguedChoiceTrial(i) == 1
         PostTrials(i) = gambleShuffled_1(i,2);
-    elseif FatiguedChoiceTrial(i) == 0
+    elseif choiceFatiguedChoiceTrial(i) == 0
         PostTrials(i) = gambleShuffled_1(i,1);
     end
 end
@@ -322,6 +340,5 @@ for i = 1:5
         end
     end
 end
-
 
 %% END
