@@ -53,8 +53,8 @@ end
 %End formatting...
 
 Screen('TextSize', window, 50);
-DrawFormattedText(window,'Flip',600,845);
-DrawFormattedText(window,'Sure',1160,663);
+DrawFormattedText(window,'Flip',0.31*xpix,0.78*ypix);
+DrawFormattedText(window,'Sure',0.6*xpix,0.61*ypix);
 
 Screen('Flip',window);
 

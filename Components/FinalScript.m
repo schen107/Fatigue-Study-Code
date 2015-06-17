@@ -2,22 +2,22 @@
 % Steven Chen
 
 clear; clc;
+cd 'Y:\Fatigue Code\Components'
 %% Setup PsychToolBox------------------------------------------------------
 
 PsychDefaultSetup(2);screen=max(Screen('Screens'));
 [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+HideCursor(window);
 
 %% Setup DAQ---------------------------------------------------------------
 % Dummy
-sensor = 1;
+% sensor = 1;
 
-% sensor = analoginput('mcc');%Default sample rate: 1000
-% chans=addchannel(sensor,0);
-% start(sensor);
-% 
-% pause(5);%Pausing to be sure that the sensor has time to equilibriate
-% baseline = getsample(sensor);
-% baseline = baseline(1);
+sensor = analoginput('mcc'); %Default sample rate: 1000
+chans=addchannel(sensor,0);
+start(sensor);
+pause(5); %Pausing to be sure that the sensor has time to equilibriate
+baseline = getsample(sensor);
 
 %% PHASE 1: MAXIMUM VOLUNTARY CONTRACTION----------------------------------
 
@@ -26,17 +26,15 @@ sensor = 1;
 % Dummy Vars
 % MVC = 1;
 % sensor = 1;
+
 % PsychDefaultSetup(2);screen=max(Screen('Screens'));
 % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-
 
 % sensor = analoginput('mcc');%Default sample rate: 1000
 % chans=addchannel(sensor,0);
 % start(sensor);
-% 
 % pause(5);%Pausing to be sure that the sensor has time to equilibriate
 % baseline = getsample(sensor);
-% baseline = baseline(1);
 
 TextScreen(window,'Phase 1: Please wait for instructions','key');
 TextScreen(window,'GET READY',1.5);
@@ -44,12 +42,13 @@ TextScreen(window,'GET READY',1.5);
 numMVCtrials = 3;
 voltMVCTrial = NaN(1000,numMVCtrials);
 for i = 1:numMVCtrials
-    [~,volt] = TextScreen(window,'SQUEEZE!',4,sensor);
-    voltMVCTrial(:,i) = abs(volt-sensor); %-baseline);
+    [~,volt] = TextScreen(window,'SQUEEZE!',4,sensor,baseline);
+    voltMVCTrial(:,i) = abs(volt-baseline);
     FixationCross(window,1+3*rand) %random duration btwn 1-4 sec
 end
 
 MVC = max(max(voltMVCTrial));
+MVC = 0.8*MVC;
 
 TextScreen(window,'End of Phase 1','key');
 
@@ -60,16 +59,15 @@ TextScreen(window,'End of Phase 1','key');
 % Dummy Vars
 % MVC = 1;
 % sensor = 1;
+
 % PsychDefaultSetup(2);screen=max(Screen('Screens'));
 % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
 
 % sensor = analoginput('mcc');%Default sample rate: 1000
 % chans=addchannel(sensor,0);
 % start(sensor);
-% 
 % pause(5);%Pausing to be sure that the sensor has time to equilibriate
 % baseline = getsample(sensor);
-% baseline = baseline(1);
 
 TextScreen(window,'Phase 2: Please wait for instructions','key');
 TextScreen(window,'GET READY',1.5);
@@ -84,8 +82,8 @@ for i = MVClevelshuffle
     count = count+1;
     for n = 1:numAssocTrials
         TextScreen(window,num2str(i),2);
-        [outcome,volt] = ThermScreen(window,sensor,MVC,i/100,'vertical',4);
-        voltAssocTrial(n,count,:) = abs(volt-sensor); %-baseline);
+        [outcome,volt] = ThermScreen(window,sensor,baseline,MVC,i/100,'vertical',4);
+        voltAssocTrial(n,count,:) = abs(volt-baseline);
         if outcome == 1
             TextScreen(window,'SUCCESS',2);
         elseif outcome == 0
@@ -98,6 +96,7 @@ for i = MVClevelshuffle
 end
 
 TextScreen(window,'End of Phase 2','key');
+sca;
 
 %% PHASE 3: RECALL---------------------------------------------------------
 
@@ -106,16 +105,15 @@ TextScreen(window,'End of Phase 2','key');
 % Dummy Vars
 % MVC = 1;
 % sensor = 1;
+
 % PsychDefaultSetup(2);screen=max(Screen('Screens'));
 % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
 
 % sensor = analoginput('mcc'); %Default sample rate: 1000
 % chans=addchannel(sensor,0);
 % start(sensor);
-
 % pause(5); %Pausing to be sure that the sensor has time to equilibriate
 % baseline = getsample(sensor);
-% baseline = baseline(1);
 
 TextScreen(window,'Phase 3: Please wait for instructions','key');
 TextScreen(window,'GET READY',1.5);
@@ -130,8 +128,8 @@ reacttimeRecallTrial = zeros(numel(MVClevels_3),1);
 count = 0;
 for i = MVClevels_3_shuffle
     count = count+1;
-    [~,volt] = ThermScreen(window,sensor,MVC,i/100,'horizontal',4);
-    voltRecallTrial(:,count) = abs(volt-sensor); %-baseline);
+    [~,volt] = ThermScreen(window,sensor,baseline,MVC,i/100,'horizontal',4);
+    voltRecallTrial(:,count) = abs(volt-baseline);
     [EffortReport,ReactTime] = NumberLineScreen(window);
     reportRecallTrial(count) = EffortReport;
     reacttimeRecallTrial(count) = ReactTime;
@@ -147,17 +145,15 @@ TextScreen(window,'End of Phase 3','key');
 % Dummy Vars
 % MVC = 1;
 % sensor = 1;
+
 % PsychDefaultSetup(2);screen=max(Screen('Screens'));
 % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-
 
 % sensor = analoginput('mcc'); %Default sample rate: 1000
 % chans=addchannel(sensor,0);
 % start(sensor);
-% 
 % pause(5); %Pausing to be sure that the sensor has time to equilibriate
 % baseline = getsample(sensor);
-% baseline = baseline(1);
 
 TextScreen(window,'Phase 4: Please wait for instructions','key');
 TextScreen(window,'GET READY',1.5);
@@ -179,7 +175,7 @@ for i = 1:numChoiceTrials
 end
 
 TextScreen(window,'End of Phase 4','key');
-
+sca;
 %% PHASE 5: FATIGUED CHOICE------------------------------------------------
 
 % For running only this phase
@@ -197,10 +193,8 @@ TextScreen(window,'End of Phase 4','key');
 % sensor = analoginput('mcc'); %Default sample rate: 1000
 % chans=addchannel(sensor,0);
 % start(sensor);
-% 
 % pause(5); %Pausing to be sure that the sensor has time to equilibriate
 % baseline = getsample(sensor);
-% baseline = baseline(1);
 
 TextScreen(window,'Phase 5: Please wait for instructions','key');
 TextScreen(window,'GET READY',1.5);
@@ -219,7 +213,7 @@ for i = 1:numFatigueTrials
     failure = 0;
     % iniial mandatory trials
     for n = 1:minFatigueContractions
-        outcome = ThermScreen(window,sensor,MVC,MVCFatiguePercent/100,'horizontal',4);
+        outcome = ThermScreen(window,sensor,baseline,MVC,MVCFatiguePercent/100,'horizontal',4);
         if outcome == 1
             TextScreen(window,'SUCCESS',1);
             success = success+1;
@@ -232,12 +226,12 @@ for i = 1:numFatigueTrials
     % conditional extra trials - if 50% failure, then criteria for fatigue
     % is met
     while success/failure > (100-FailureThreshold)/FailureThreshold
-        outcome = ThermScreen(window,sensor,MVC,MVCFatiguePercent/100,'horizontal',4);
+        outcome = ThermScreen(window,sensor,baseline,MVC,MVCFatiguePercent/100,'horizontal',4);
         if outcome == 1
             TextScreen(window,'SUCCESS',1);
             success = success+1;
         elseif outcome == 0
-            TextScreen(window,'FAILURE',1);
+            TextScreen(window,'FAILURE',1@@);
             failure = failure+1;
         end
         FixationCross(window,3);
@@ -248,8 +242,8 @@ for i = 1:numFatigueTrials
     % integer
     TempReacttime = zeros(numFatiguedChoiceTrials/numFatigueTrials,1);
     for j = 1:numFatiguedChoiceTrials/numFatigueTrials
-        flip = gambleShuffled_1(i,2);
-        sure = gambleShuffled_1(i,1);
+        flip = gambleShuffled_1(j,2);
+        sure = gambleShuffled_1(j,1);
         [choice,ReactTime] = GambleScreen(window,flip,sure,4);
         FixationCross(window,1+3*rand);
         TempFatiguedChoice(j) = choice; %NOTE: 1 = flip, 0 = sure
@@ -268,6 +262,7 @@ TextScreen(window,'End of Phase 5','key');
 % Dummy Vars
 % MVC = 1;
 % sensor = 1;
+
 % PsychDefaultSetup(2);screen=max(Screen('Screens'));
 % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
 % load('Gambles_12_5.mat');
@@ -302,7 +297,7 @@ for i = 1:5
     count = 0;
     lever = 0;
     while lever == 0 && count < 5
-        [outcome,~] = ThermScreen(window,sensor,MVC,PreTrials(i),'horizontal',4);
+        [outcome,~] = ThermScreen(window,sensor,baseline,MVC,PreTrials(i),'horizontal',4);
         if outcome == 1
             TextScreen(window,'Success',2)
             lever = 1;
@@ -316,7 +311,7 @@ for i = 1:5
     count = 0;
     lever = 0;
     while lever == 0 && count < 5
-        [outcome,~] = ThermScreen(window,sensor,MVC,PostTrials(i),'horizontal',4);
+        [outcome,~] = ThermScreen(window,sensor,baseline,MVC,PostTrials(i),'horizontal',4);
         if outcome == 1
             TextScreen(window,'Success',2)
             lever = 1;

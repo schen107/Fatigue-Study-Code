@@ -11,7 +11,7 @@ xcenter = xpix/2; ycenter = ypix/2;
 click = 0;
 HalfLength = xpix/3;
 margin=0.5*(xpix-2*HalfLength);
-xrand=margin+rand*2*HalfLength;yrand=rand*ypix;
+xrand=round(margin+rand*2*HalfLength);yrand=round(rand*ypix);
 SetMouse(xrand,yrand);
 tic;
 while ~click(1)

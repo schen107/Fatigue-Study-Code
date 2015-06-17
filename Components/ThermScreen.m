@@ -1,4 +1,4 @@
-function [outcome, volt] = ThermScreen(window,sensor,MVC,goal,orientation,time)
+function [outcome, volt] = ThermScreen(window,sensor,baseline,MVC,goal,orientation,time)
 
 % value is between 0-1
 % time is in sec
@@ -45,22 +45,25 @@ if strcmp(orientation,'vertical')
     while GetSecs-t0 <= time
         i = i+1;
 %         Real Code
-%         voltNow = getsample(sensor);
-%         ForcePercent = voltNow/MVC;
-%         volt(i) = voltNow;
-%         
-%         Dummy Code
-        pause(0.01);
-        [~,~,keyCode]=KbCheck; 
-        if find(keyCode)==32
-            s=s+1;
-        else 
-            s=s-1;
+        voltNow = getsample(sensor)-baseline;
+        if voltNow < 0
+            voltNow = 0;
         end
-        s=min(s,100);
-        s=max(s,0);
-        volt(i) = s;
-        ThermBarTop = (ThermHeight*(1-s/100))+ThermRect(2);
+        ForcePercent = voltNow/MVC;
+        volt(i) = voltNow;
+        
+%         Dummy Code
+%         pause(0.01);
+%         [~,~,keyCode]=KbCheck; 
+%         if find(keyCode)==32
+%             s=s+1;
+%         else 
+%             s=s-1;
+%         end
+%         s=min(s,100);
+%         s=max(s,0);
+%         volt(i) = s;
+        ThermBarTop = (ThermHeight*(1-ForcePercent))+ThermRect(2);
         ThermBar = [ThermBarLeft ThermBarTop ThermBarRight ThermBarBottom];
     
         Screen('FrameRect',window,white,ThermRect);
@@ -68,7 +71,7 @@ if strcmp(orientation,'vertical')
         Screen('TextFont',window,'Arial');
         DrawFormattedText(window,PercentMVC,PercentMVCX,PercentMVCY,white);
         Screen('FillRect',window,white,ThermBar);
-        if abs(s/100-goal) < SuccessWindow
+        if abs(ForcePercent-goal) < SuccessWindow
             Screen('FillRect',window,[0 1 0],SuccessRect);
             suc = suc+1;
         else
@@ -103,29 +106,32 @@ elseif strcmp(orientation,'horizontal')
     while GetSecs-t0 <= time
         i = i+1;
 %         Real Code
-%         voltNow = getsample(sensor);
-%         ForcePercent = voltNow/MVC;
-%         volt(i) = voltNow;
+        voltNow = getsample(sensor)-baseline;
+        if voltNow < 0
+            voltNow = 0;
+        end
+        ForcePercent = voltNow/MVC;
+        volt(i) = voltNow;
 %         
 %         Dummy Code
-        pause(0.01);
-        [~,~,keyCode]=KbCheck; 
-        if find(keyCode)==32
-            s=s+1;
-        else 
-            s=s-1;
-        end
-        s=min(s,100);
-        s=max(s,0);
-        volt(i) = s;
-        ThermBarRight = (ThermWidth*(s/100)/goal)+ThermBarLeft;
+%         pause(0.01);
+%         [~,~,keyCode]=KbCheck; 
+%         if find(keyCode)==32
+%             s=s+1;
+%         else 
+%             s=s-1;
+%         end
+%         s=min(s,100);
+%         s=max(s,0);
+%         volt(i) = s;
+        ThermBarRight = (ThermWidth*(ForcePercent)/goal)+ThermBarLeft;
         ThermBarRight = min(ThermRect(3),ThermBarRight);
         ThermBar = [ThermBarLeft ThermBarTop ThermBarRight ThermBarBottom];
         
         Screen('FrameRect',window,white,ThermRect);
         
         SuccessWindow = 0.05;
-        if abs(s/100-goal) < SuccessWindow
+        if abs(ForcePercent-goal) < SuccessWindow
             Screen('FillRect',window,[0 1 0],ThermBar);
             suc = suc+1;
         else

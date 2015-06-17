@@ -1,7 +1,6 @@
 function [key,volt] = TextScreen(window,message,varargin)
-
-% varargin is [time], ['key'], or [time,sensor]
-% this experiment doesn't need ['key',sensor]
+% varargin is [time], ['key'], or [time,sensor,baseline]
+% this experiment doesn't need ['key',sensor,baseline]
 % outputs are the key that's pressed (string) and voltage array
 
 white = WhiteIndex(window); black = BlackIndex(window);
@@ -31,7 +30,7 @@ if nargin == 3
         key = NaN;
     end
 
-elseif nargin == 4
+elseif nargin == 5
     DrawFormattedText(window,message,'center','center',white);
     Screen('Flip',window);
     key = NaN;
@@ -44,7 +43,7 @@ elseif nargin == 4
     while GetSecs-t0 <= time
 %         WaitSecs(0.02);
         i = i+1;
-        volt(i) = i;%getsample(sensor);
+        volt(i) = getsample(sensor)-varargin{3};
         DrawFormattedText(window,message,'center','center',white);
         Screen('Flip',window);
     end
