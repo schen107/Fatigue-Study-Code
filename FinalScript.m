@@ -41,10 +41,10 @@ TextScreen(window,'Phase 1: Please wait for instructions',[1 1 1],'key');
 TextScreen(window,'GET READY',[1 1 1],1.5);
 
 numMVCTrials = 3;
-MVCTrial = NaN(1000,numMVCTrials); %rows-voltages, columns-trial #
+MVCTrial = NaN(numMVCTrials,1000); %rows-trial#, columns-voltages
 for i = 1:numMVCTrials
     [~,volt] = TextScreen(window,'SQUEEZE!',[1 1 1],4,sensor,baseline);
-    MVCTrial(:,i) = volt;
+    MVCTrial(i,:) = volt;
     FixationCross(window,1+3*rand) %random duration btwn 1-4 sec
 end
 
@@ -75,31 +75,33 @@ TextScreen(window,'GET READY',[1 1 1],1.5);
 numAssocTrials = 5;
 PercentMVClevels = [10 20 30 40 50 60 70 80];
 PercentMVClevelshuffle = PercentMVClevels(randperm(numel(PercentMVClevels)));
-voltAssocTrial = NaN(numAssocTrials,numel(PercentMVClevels),1000);
-% ^rows-trial# for each level, columns-MVC percentages, depth-voltages
-AssocTiming = NaN(numAssocTrials,numel(PercentMVClevels),1000);
-% ^timings associated with voltages
 AssocTrial = repmat(PercentMVClevelshuffle,[numAssocTrials 1]);
-% ^rows and columns correspond to voltAssocTrial and AssocTiming rows and
-% columns
+AssocTrial = AssocTrial(:);
+% ^40x1 representing each individual trial
+voltAssocTrial = NaN(numel(AssocTrial),1000);
+% ^rows-trial# for each level, columns-MVC percentages, depth-voltages
+AssocTiming = NaN(numel(AssocTrial),1000);
+% ^timings associated with voltages
 
 count = 0;
-for i = PercentMVClevelshuffle
+count_1 = 0;
+for i = AssocTrial
     count = count+1;
-    for n = 1:numAssocTrials
-        TextScreen(window,num2str(i),[1 1 1],2);
-        [outcome,volt,timing] = ThermScreen(window,sensor,baseline,MVC,i/100,'vertical',4);
-        voltAssocTrial(n,count,:) = volt;
-        AssocTiming(n,count,:) = timing;
-        if outcome == 1
-            TextScreen(window,'SUCCESS',[0 1 0],2);
-        elseif outcome == 0
-            TextScreen(window,'FAILURE',[1 0 0],2);
-        end
-        FixationCross(window,1+3*rand);
+    count_1 = count_1+1;
+    TextScreen(window,num2str(i),[1 1 1],2);
+    [outcome,volt,timing] = ThermScreen(window,sensor,baseline,MVC,i/100,'vertical',4);
+    voltAssocTrial(count,:) = volt;
+    AssocTiming(count,:) = timing;
+    if outcome == 1
+        TextScreen(window,'SUCCESS',[0 1 0],2);
+    elseif outcome == 0
+        TextScreen(window,'FAILURE',[1 0 0],2);
+    FixationCross(window,1+3*rand);
     end
-    
-    TextScreen(window,'REST',[1 1 1],60);
+    while count_1 == numAssocTrials
+        TextScreen(window,'REST',[1 1 1],60);
+        count_1 = 0;
+    end
 end
 
 TextScreen(window,'End of Phase 2',[1 1 1],'key');
@@ -144,10 +146,10 @@ for i = PercentMVClevels_3_shuffle
 end
 
 RecallTrial = [PercentMVClevels_3_shuffle' reportRecallTrial ... 
-    reacttimeRecallTrial voltRecallTrial];
+    reacttimeRecallTrial];
 % ^rows-recall trial#, column1-actual MVC percentage, column2-reported MVC
-% percentage, column3-reaction time, column4:1003-voltages
-% RecallTiming 1:1000 corresponds to RecallTrial 4:1003
+% percentage, column3-reaction time
+
 TextScreen(window,'REST',[1 1 1],60);
 
 TextScreen(window,'End of Phase 3',[1 1 1],'key');
@@ -337,7 +339,7 @@ PreVoltTrial = NaN(5,1000);
 PostVoltTrial = NaN(5,1000);
 PreTimingTrial = NaN(5,1000);
 PostTimingTrial = NaN(5,1000);
-% ^These will record only the success trial or the 5th fail trial
+% ^NOTE: may not be completely filled if subjects succeed before 5th try
 for i = 1:5
     count = 0;
     lever = 0;
