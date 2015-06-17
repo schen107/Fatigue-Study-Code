@@ -1,4 +1,4 @@
-function [outcome, volt] = ThermScreen(window,sensor,baseline,MVC,goal,orientation,time)
+function [outcome, volt, timing] = ThermScreen(window,sensor,baseline,MVC,goal,orientation,time)
 
 % value is between 0-1
 % time is in sec
@@ -40,6 +40,7 @@ if strcmp(orientation,'vertical')
     s = 0;
     i = 0;
     volt = NaN(1000,1);
+    timing = NaN(1000,1);
     suc = 0;
     t0 = GetSecs;
     while GetSecs-t0 <= time
@@ -51,6 +52,7 @@ if strcmp(orientation,'vertical')
         end
         ForcePercent = voltNow/MVC;
         volt(i) = voltNow;
+        timing(i) = GetSecs-t0;
         
 %         Dummy Code
 %         pause(0.01);
