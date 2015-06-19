@@ -59,7 +59,7 @@ for i = 1:numMVCTrials
 end
 
 MVC = max(max(MVCTrial));
-MVC = 0.8*MVC; 
+MVC = 0.8*MVC;
 % ^We are adjusting the 'effort range' of 0 to 100 to map from no force, 
 % to 80% of the max force
 
@@ -224,36 +224,36 @@ choiceFatiguedChoiceTrial = zeros(numFatiguedChoiceTrials,1);
 reacttimeFatiguedChoiceTrial = zeros(numFatiguedChoiceTrials,1);
 
 for i = 1:numFatigueTrials
-%     TextScreen(window,'Fatigue Phase: Press any key to continue',[1 1 1],'key');
-%     TextScreen(window,'GET READY',[1 1 1],1.5);
-%     
-%     % initial mandatory trials (adjusted by minFatigueContractions)
-%     success = 0;
-%     failure = 0;
-%     for n = 1:minFatigueContractions
-%         outcome = ThermScreen(window,sensor,baseline,MVC,MVCFatiguePercent/100,'horizontal',4);
-%         if outcome == 1
-%             TextScreen(window,'SUCCESS',[0 1 0],1);
-%             success = success+1;
-%         elseif outcome == 0
-%             TextScreen(window,'FAILURE',[1 0 0],1);
-%             failure = failure+1;
-%         end
-%         FixationCross(window,3);
-%     end
-%     % conditional extra trials - if 50% failure, then criteria for fatigue
-%     % is met (changed by altering FailureThreshold)
-%     while success/failure > (100-FailureThreshold)/FailureThreshold
-%         outcome = ThermScreen(window,sensor,baseline,MVC,MVCFatiguePercent/100,'horizontal',4);
-%         if outcome == 1
-%             TextScreen(window,'SUCCESS',[0 1 0],1);
-%             success = success+1;
-%         elseif outcome == 0
-%             TextScreen(window,'FAILURE',[1 0 0],1);
-%             failure = failure+1;
-%         end
-%         FixationCross(window,3);
-%     end 
+    TextScreen(window,'Fatigue Phase: Press any key to continue',[1 1 1],'key');
+    TextScreen(window,'GET READY',[1 1 1],1.5);
+    
+    % initial mandatory trials (adjusted by minFatigueContractions)
+    success = 0;
+    failure = 0;
+    for n = 1:minFatigueContractions
+        outcome = ThermScreen(window,sensor,baseline,MVC,MVCFatiguePercent/100,'horizontal',4);
+        if outcome == 1
+            TextScreen(window,'SUCCESS',[0 1 0],1);
+            success = success+1;
+        elseif outcome == 0
+            TextScreen(window,'FAILURE',[1 0 0],1);
+            failure = failure+1;
+        end
+        FixationCross(window,3);
+    end
+    % conditional extra trials - if 50% failure, then criteria for fatigue
+    % is met (changed by altering FailureThreshold)
+    while success/failure > (100-FailureThreshold)/FailureThreshold
+        outcome = ThermScreen(window,sensor,baseline,MVC,MVCFatiguePercent/100,'horizontal',4);
+        if outcome == 1
+            TextScreen(window,'SUCCESS',[0 1 0],1);
+            success = success+1;
+        elseif outcome == 0
+            TextScreen(window,'FAILURE',[1 0 0],1);
+            failure = failure+1;
+        end
+        FixationCross(window,3);
+    end 
     
     TextScreen(window,'Gamble Phase: Press any key to continue',[1 1 1],'key');
     TextScreen(window,'GET READY',[1 1 1],1.5);
@@ -306,32 +306,32 @@ TextScreen(window,'GET READY',[1 1 1],1.5);
 PreTrial = zeros(5,1);
 PostTrial = zeros(5,1);
 count = 0;
-for i = randi(numChoiceTrials,[1 5]) 
-    % NOTE: here, numChoiceTrials is the same as numFatiguedChoiceTrials, 
+for i = randi(length(ChoiceTrial),[1 5]) 
+    % NOTE: here, length(ChoiceTrial) is the same as length(FatiguedChoiceTrial), 
     % so both are in the same for loop. If the number of gambles for each 
     % phase is different, this needs to be changed.
     % NOTE: there is a very small chance that there will be repeated
     % gambles during this phase.
     count = count+1;
-    if choiceChoiceTrial(i) == 1 %Random seed to determine 0 or flip value
+    if ChoiceTrial(i,3) == 1 %Random seed to determine 0 or flip value
         seed = rand;
         if seed < 0.5
             PreTrial(count) = gambleShuffled(i,2);
         elseif seed >= 0.5
             PreTrial(count) = 0;
         end
-    elseif choiceChoiceTrial(i) == 0
+    elseif ChoiceTrial(i,3) == 0
         PreTrial(count) = gambleShuffled(i,1);
     end
     
-    if choiceFatiguedChoiceTrial(i) == 1
+    if FatiguedChoiceTrial(i,3) == 1
         seed = rand;
         if seed < 0.5
             PostTrial(count) = gambleShuffled_1(i,2);
         elseif seed >= 0.5
             PostTrial(count) = 0;
         end
-    elseif choiceFatiguedChoiceTrial(i) == 0
+    elseif FatiguedChoiceTrial(i,3) == 0
         PostTrial(count) = gambleShuffled_1(i,1);
     end
 end
