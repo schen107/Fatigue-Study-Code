@@ -1,7 +1,6 @@
 function FixationCross(window,time)
 
 white = WhiteIndex(window); black = BlackIndex(window);
-HideCursor(window);
 [xpix,ypix] = Screen('WindowSize',window);
 xcenter = xpix/2; ycenter = ypix/2;
 

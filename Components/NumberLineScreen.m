@@ -4,7 +4,6 @@ function [EffortReport,ReactTime] = NumberLineScreen(window)
 % ReactTime - time it took to make choice (s)
 
 white = WhiteIndex(window); black = BlackIndex(window);
-HideCursor(window);
 [xpix,ypix] = Screen('WindowSize',window);
 xcenter = xpix/2; ycenter = ypix/2;
 

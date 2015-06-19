@@ -8,7 +8,6 @@ function [choice,ReactTime] = GambleScreen(window,flip,sure,time)
 % ReactTime - time it took to make the choice (s)
 
 white = WhiteIndex(window); black = BlackIndex(window);
-HideCursor(window);
 [xpix,ypix] = Screen('WindowSize',window);
 xcenter = xpix/2; ycenter = ypix/2;
 

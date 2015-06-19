@@ -5,7 +5,6 @@ function [outcome, volt, timing] = ThermScreen(window,sensor,baseline,MVC,goal,o
 % orientation is either 'horizontal' or 'vertical'
 
 white = WhiteIndex(window); black = BlackIndex(window);
-HideCursor(window);
 [xpix,ypix] = Screen('WindowSize',window);
 xcenter = xpix/2; ycenter = ypix/2;
 
@@ -37,10 +36,10 @@ if strcmp(orientation,'vertical')
     PercentMVCY = SuccessYCenter-16;
     fontsize = 20;
     
-    s = 0;
+%     s = 0;
     i = 0;
-    volt = NaN(1000,1);
-    timing = NaN(1000,1);
+    volt = NaN(1,1000);
+    timing = NaN(1,1000);
     suc = 0;
     t0 = GetSecs;
     while GetSecs-t0 <= time
@@ -49,6 +48,8 @@ if strcmp(orientation,'vertical')
         voltNow = getsample(sensor)-baseline;
         if voltNow < 0
             voltNow = 0;
+        elseif voltNow > MVC
+            voltNow = MVC;
         end
         ForcePercent = voltNow/MVC;
         volt(i) = voltNow;
@@ -100,9 +101,10 @@ elseif strcmp(orientation,'horizontal')
     ThermBarBottom = ThermRect(4); ThermBarTop = ThermRect(2);
     ThermBarLeft = ThermRect(1);
 
-    s = 0;
+%     s = 0;
     i = 0;
-    volt = NaN(1000,1);
+    volt = NaN(1,1000);
+    timing = NaN(1,1000);
     suc = 0;
     t0 = GetSecs;
     while GetSecs-t0 <= time
@@ -114,6 +116,7 @@ elseif strcmp(orientation,'horizontal')
         end
         ForcePercent = voltNow/MVC;
         volt(i) = voltNow;
+        timing(i) = GetSecs-t0;
 %         
 %         Dummy Code
 %         pause(0.01);
