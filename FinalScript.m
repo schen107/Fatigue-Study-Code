@@ -3,12 +3,15 @@
 
 clear; clc;
 rng('shuffle'); %Generate new random seed
-% cd 'C:\Users\Steven Chen\Documents\MATLAB\Fatigue Code\Components' %For personal laptop
+% cd('Y:\Fatigue Code\Components') %KKI Computer
+% cd 'C:\Users\Steven Chen\Documents\MATLAB\Fatigue Code\Components' %Personal Laptop
+cd('C:\Users\Steven\Documents\MATLAB\FatigueCode\Components') %Steven's Computer
 
 %% Setup Subject Data------------------------------------------------------
 
 % rootpath='Y:\Fatigue Experiment'; %Patrick's Account
-rootpath = 'C:\Users\mcdonaldme\Desktop'; %Megan's Account
+% rootpath = 'C:\Users\mcdonaldme\Desktop'; %Megan's Account
+rootpath = 'C:\Users\Steven\Documents'; %Steven's Account
 SubjectID=input('Enter Subject Identifier: ','s');
 FolderName = 'Pilot Data';
 SubjectDir = fullfile(rootpath,FolderName,SubjectID);
@@ -18,7 +21,6 @@ save(FileName,'SubjectID');
 
 %% Setup PsychToolBox------------------------------------------------------
 
-% cd('Y:\Fatigue Code\Components') %For KKI computer
 PsychDefaultSetup(2);screen=max(Screen('Screens'));
 [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
 HideCursor(window);
@@ -26,13 +28,23 @@ HideCursor(window);
 %% Setup DAQ---------------------------------------------------------------
 % Dummy
 % sensor = 1;
+global DAR
+% Old DAQ
+% sensor = analoginput('mcc'); %Default sample rate: 1000
+% chans=addchannel(sensor,0);
+% start(sensor);
+% TextScreen(window,'Calibrating - Dont touch the sensor!',[1 1 1],5);
+% % Pausing to be sure that the sensor has time to equilibriate
+% baseline = getsample(sensor);
 
-sensor = analoginput('mcc'); %Default sample rate: 1000
-chans=addchannel(sensor,0);
-start(sensor);
+% New DAQ
+
+time = 5;
+freq = 2000;
+startCollect(time,freq);
 TextScreen(window,'Calibrating - Dont touch the sensor!',[1 1 1],5);
-% Pausing to be sure that the sensor has time to equilibriate
-baseline = getsample(sensor);
+baseline = max(DAR(2,:));
+
 
 %% PHASE 1: MAXIMUM VOLUNTARY CONTRACTION----------------------------------
  
@@ -48,11 +60,13 @@ baseline = getsample(sensor);
 TextScreen(window,'Phase 1: Please wait for instructions',[1 1 1],'key');
 TextScreen(window,'GET READY',[1 1 1],1.5);
 
+time = 4;
+freq = 2000;
 numMVCTrials = 3;
-MVCTrial = NaN(numMVCTrials,1000); %rows-trial#, columns-voltages
-MVCTiming = NaN(numMVCTrials,1000);
+MVCTrial = NaN(numMVCTrials,time*freq); %rows-trial#, columns-voltages
+MVCTiming = NaN(numMVCTrials,time*freq);
 for i = 1:numMVCTrials
-    [~,volt,timing] = TextScreen(window,'SQUEEZE!',[1 1 1],4,sensor,baseline);
+    [~,volt,timing] = TextScreen(window,'SQUEEZE!',[1 1 1],time,'DAQ',baseline);
     MVCTiming(i,:) = timing;
     MVCTrial(i,:) = volt;
     FixationCross(window,1+3*rand) %random duration btwn 1-4 sec
@@ -79,15 +93,17 @@ TextScreen(window,'End of Phase 1',[1 1 1],'key');
 TextScreen(window,'Phase 2: Please wait for instructions',[1 1 1],'key');
 TextScreen(window,'GET READY',[1 1 1],1.5);
 
+time = 4;
+freq = 2000;
 numAssocTrials = 5;
 PercentMVClevels = [10 20 30 40 50 60 70 80];
 PercentMVClevelshuffle = PercentMVClevels(randperm(numel(PercentMVClevels)));
 AssocTrial = repmat(PercentMVClevelshuffle,[numAssocTrials 1]);
 AssocTrial = AssocTrial(:);
 % ^40x1 representing each individual trial
-voltAssocTrial = NaN(numel(AssocTrial),1000);
+voltAssocTrial = NaN(numel(AssocTrial),time*freq);
 % ^rows-trial# for each level, columns-MVC percentages, depth-voltages
-AssocTiming = NaN(numel(AssocTrial),1000);
+AssocTiming = NaN(numel(AssocTrial),time*freq);
 % ^timings associated with voltages
 
 count = 0;
@@ -96,7 +112,7 @@ for i = AssocTrial'
     count = count+1;
     count_1 = count_1+1;
     TextScreen(window,num2str(i),[1 1 1],2);
-    [outcome,volt,timing] = ThermScreen(window,sensor,baseline,MVC,i/100,'vertical',4);
+    [outcome,volt,timing] = ThermScreen(window,baseline,MVC,i/100,'vertical',time);
     voltAssocTrial(count,:) = volt;
     AssocTiming(count,:) = timing;
     if outcome == 1
@@ -128,18 +144,20 @@ TextScreen(window,'End of Phase 2',[1 1 1],'key');
 TextScreen(window,'Phase 3: Please wait for instructions',[1 1 1],'key');
 TextScreen(window,'GET READY',[1 1 1],1.5);
 
+time = 4;
+freq = 2000;
 numRecallTrials = 3;
 PercentMVClevels = [10 20 30 40 50 60 70 80];
 PercentMVClevels_3 = repmat(PercentMVClevels,[numRecallTrials,1]);
 PercentMVClevels_3_shuffle = PercentMVClevels_3(randperm(numel(PercentMVClevels_3)));
-voltRecallTrial = NaN(numel(PercentMVClevels_3),1000);
+voltRecallTrial = NaN(numel(PercentMVClevels_3),time*freq);
 reportRecallTrial = zeros(numel(PercentMVClevels_3),1);
 reacttimeRecallTrial = zeros(numel(PercentMVClevels_3),1);
-RecallTiming = NaN(numel(PercentMVClevels_3),1000);
+RecallTiming = NaN(numel(PercentMVClevels_3),time*freq);
 count = 0;
 for i = PercentMVClevels_3_shuffle
     count = count+1;
-    [~,volt,timing] = ThermScreen(window,sensor,baseline,MVC,i/100,'horizontal',4);
+    [~,volt,timing] = ThermScreen(window,baseline,MVC,i/100,'horizontal',time);
     voltRecallTrial(count,:) = volt;
     RecallTiming(count,:) = timing;
     [EffortReport,ReactTime] = NumberLineScreen(window);
@@ -214,6 +232,8 @@ TextScreen(window,'End of Phase 4',[1 1 1],'key');
 
 TextScreen(window,'Phase 5: Please wait for instructions',[1 1 1],'key');
 
+time = 4;
+freq = 2000;
 gambleShuffled_1 = gambles(randperm(r),:);
 MVCFatiguePercent = 60;
 FailureThreshold = 50;
@@ -231,7 +251,7 @@ for i = 1:numFatigueTrials
     success = 0;
     failure = 0;
     for n = 1:minFatigueContractions
-        outcome = ThermScreen(window,sensor,baseline,MVC,MVCFatiguePercent/100,'horizontal',4);
+        outcome = ThermScreen(window,baseline,MVC,MVCFatiguePercent/100,'horizontal',time);
         if outcome == 1
             TextScreen(window,'SUCCESS',[0 1 0],1);
             success = success+1;
@@ -244,7 +264,7 @@ for i = 1:numFatigueTrials
     % conditional extra trials - if 50% failure, then criteria for fatigue
     % is met (changed by altering FailureThreshold)
     while success/failure > (100-FailureThreshold)/FailureThreshold
-        outcome = ThermScreen(window,sensor,baseline,MVC,MVCFatiguePercent/100,'horizontal',4);
+        outcome = ThermScreen(window,baseline,MVC,MVCFatiguePercent/100,'horizontal',time);
         if outcome == 1
             TextScreen(window,'SUCCESS',[0 1 0],1);
             success = success+1;
@@ -302,6 +322,8 @@ HideCursor(window);
 TextScreen(window,'Phase 6: Please wait for instructions',[1 1 1],'key');
 TextScreen(window,'GET READY',[1 1 1],1.5);
 
+time = 4;
+freq = 2000;
 % Randomly select 5 choice trials from pre/post fatigue
 PreTrial = zeros(5,1);
 PostTrial = zeros(5,1);
@@ -337,17 +359,17 @@ for i = randi(length(ChoiceTrial),[1 5])
 end
 
 % Play Out Gambles (1 success or 5 fails per gamble)
-PreVoltTrial = NaN(5,1000);
-PostVoltTrial = NaN(5,1000);
-PreTimingTrial = NaN(5,1000);
-PostTimingTrial = NaN(5,1000);
+PreVoltTrial = NaN(5,time*freq);
+PostVoltTrial = NaN(5,time*freq);
+PreTimingTrial = NaN(5,time*freq);
+PostTimingTrial = NaN(5,time*freq);
 % ^NOTE: Only records the 5th trial or success trial
 for i = 1:5
     FailCount = 0;
     lever = 0;
     while lever == 0 && FailCount < 5
         TextScreen(window,num2str(PreTrial(i)),[1 1 1],2);
-        [outcome,volt,timing] = ThermScreen(window,sensor,baseline,MVC,PreTrial(i)/100,'vertical',4);
+        [outcome,volt,timing] = ThermScreen(window,baseline,MVC,PreTrial(i)/100,'vertical',time);
         PreVoltTrial(i,:) = volt;
         PreTimingTrial(i,:) = timing;
         if outcome == 1
@@ -367,7 +389,7 @@ for i = 1:5
     lever = 0;
     while lever == 0 && FailCount < 5
         TextScreen(window,num2str(PostTrial(i)),[1 1 1],2);
-        [outcome,volt,timing] = ThermScreen(window,sensor,baseline,MVC,PostTrial(i)/100,'vertical',4);
+        [outcome,volt,timing] = ThermScreen(window,baseline,MVC,PostTrial(i)/100,'vertical',4);
         PostVoltTrial(i,:) = volt;
         PostTimingTrial(i,:) = timing;
         if outcome == 1
