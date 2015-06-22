@@ -1,8 +1,9 @@
 function [key,volt,timing] = TextScreen(window,message,color,varargin)
 % color is in RGB coords (ex. white: [1 1 1], green: [0 1 0], red: [1 0 0])
-% varargin is [time], ['key'], or [time,sensor,baseline]
-% this experiment doesn't need ['key',sensor,baseline]
-% outputs are the key that's pressed (string) and voltage array
+% varargin is [time], ['key'], or [time,'DAQ',baseline]
+% outputs are the key that's pressed (string), voltage, and timing array
+
+global DAR
 
 Screen('TextFont',window,'Ariel');
 Screen('TextSize',window,40);
@@ -26,24 +27,18 @@ if nargin == 4
     end
 
 elseif nargin == 6
-    DrawFormattedText(window,message,'center','center',color);
-    Screen('Flip',window);
     key = NaN;
     time = varargin{1};
-    sensor = varargin{2};
-    numSample = 1000;
-    volt = NaN(1,numSample);
-    timing = NaN(1,numSample);
+    baseline = varargin{3};
+    freq = 2000;
+    startCollect(time,freq);
     t0=GetSecs;
-    i = 0;
     while GetSecs-t0 <= time
-%         WaitSecs(0.02);
-        i = i+1;
-        volt(i) = getsample(sensor)-varargin{3};
-        timing(i) = GetSecs-t0;
         DrawFormattedText(window,message,'center','center',color);
         Screen('Flip',window);
     end
+    volt = DAR(2,:)-baseline;
+    timing = DAR(1,:);
 
 end
 end
