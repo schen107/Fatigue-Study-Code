@@ -1,9 +1,9 @@
 function [key,volt,timing] = TextScreen(window,message,color,varargin)
 % color is in RGB coords (ex. white: [1 1 1], green: [0 1 0], red: [1 0 0])
-% varargin is [time], ['key'], or [time,'DAQ',baseline]
+% varargin is [time], ['key'], ['DAQ',baseline] or [time,'DAQ',baseline]
 % outputs are the key that's pressed (string), voltage, and timing array
 
-global DAR
+global DAR IND
 
 Screen('TextFont',window,'Ariel');
 Screen('TextSize',window,40);
@@ -26,7 +26,24 @@ if nargin == 4
         key = NaN;
     end
 
+elseif nargin == 5
+    % cd('C:\Users\StevenChen\Documents\MATLAB\Fatigue Code\DAQ functions'); %Personal Laptop
+    cd('C:\Users\Steven\Documents\MATLAB\FatigueCode\DAQ functions'); %Steven's Account
+    key = NaN;
+    baseline = varargin{2};
+    freq = 2000;
+    time = 100; %some large interval of time
+    lever = 1;
+    while lever
+       startCollect(time,freq);
+       if 
+       
+    end
+    
+    
 elseif nargin == 6
+    % cd('C:\Users\StevenChen\Documents\MATLAB\Fatigue Code\DAQ functions'); %Personal Laptop
+    cd('C:\Users\Steven\Documents\MATLAB\FatigueCode\DAQ functions'); %Steven's Account
     key = NaN;
     time = varargin{1};
     baseline = varargin{3};
@@ -41,4 +58,7 @@ elseif nargin == 6
     timing = DAR(1,:);
 
 end
+
+cd('C:\Users\Steven\Documents\MATLAB\FatigueCode\Components'); %Steven's Account
+
 end

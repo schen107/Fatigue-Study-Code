@@ -5,7 +5,7 @@ DAR = zeros(2,seconds*freq);
 s = daq.createSession('ni');
 s.DurationInSeconds = seconds;
 s.Rate = freq;
-s.NotifyWhenDataAvailableExceeds = 25;
+s.NotifyWhenDataAvailableExceeds = 100;
 addAnalogInputChannel(s,'Dev1',0,'Voltage');
 % lh = addlistener(s,'DataAvailable', @(src,e) disp(length(e.Data)));
 lh = addlistener(s,'DataAvailable', @dropTheD);

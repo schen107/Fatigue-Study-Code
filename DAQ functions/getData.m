@@ -5,4 +5,3 @@ global DAR IND
 td = [DAR(1,IND) DAR(2,IND)];
 
 end
-

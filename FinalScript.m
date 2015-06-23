@@ -3,9 +3,6 @@
 
 clear; clc;
 rng('shuffle'); %Generate new random seed
-% cd('Y:\Fatigue Code\Components') %KKI Computer
-% cd 'C:\Users\Steven Chen\Documents\MATLAB\Fatigue Code\Components' %Personal Laptop
-cd('C:\Users\Steven\Documents\MATLAB\FatigueCode\Components') %Steven's Computer
 
 %% Setup Subject Data------------------------------------------------------
 
@@ -38,13 +35,18 @@ global DAR
 % baseline = getsample(sensor);
 
 % New DAQ
-
+% cd('C:\Users\StevenChen\Documents\MATLAB\Fatigue Code\DAQ functions'); %Personal Laptop
+cd('C:\Users\Steven\Documents\MATLAB\FatigueCode\DAQ functions'); %Steven's Account
 time = 5;
 freq = 2000;
 startCollect(time,freq);
-TextScreen(window,'Calibrating - Dont touch the sensor!',[1 1 1],5);
-baseline = max(DAR(2,:));
 
+% pause(5);
+% cd('Y:\Fatigue Code\Components') %KKI Computer
+% cd 'C:\Users\Steven Chen\Documents\MATLAB\Fatigue Code\Components' %Personal Laptop
+cd('C:\Users\Steven\Documents\MATLAB\FatigueCode\Components') %Steven's Computer
+TextScreen(window,'Calibrating - Dont touch the sensor!',[1 1 1],5);
+baseline = mode(DAR(2,:));
 
 %% PHASE 1: MAXIMUM VOLUNTARY CONTRACTION----------------------------------
  
@@ -53,9 +55,9 @@ baseline = max(DAR(2,:));
 % Dummy
 % sensor = 1;
 
-% PsychDefaultSetup(2);screen=max(Screen('Screens'));
-% [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-% HideCursor(window);
+PsychDefaultSetup(2);screen=max(Screen('Screens'));
+[window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+HideCursor(window);
 
 TextScreen(window,'Phase 1: Please wait for instructions',[1 1 1],'key');
 TextScreen(window,'GET READY',[1 1 1],1.5);
@@ -86,9 +88,9 @@ TextScreen(window,'End of Phase 1',[1 1 1],'key');
 % MVC = 1;
 % sensor = 1;
 
-% PsychDefaultSetup(2);screen=max(Screen('Screens'));
-% [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-% HideCursor(window);
+PsychDefaultSetup(2);screen=max(Screen('Screens'));
+[window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+HideCursor(window);
 
 TextScreen(window,'Phase 2: Please wait for instructions',[1 1 1],'key');
 TextScreen(window,'GET READY',[1 1 1],1.5);
@@ -221,27 +223,29 @@ TextScreen(window,'End of Phase 4',[1 1 1],'key');
 % MVC = 1;
 % sensor = 1;
 
-% PsychDefaultSetup(2);screen=max(Screen('Screens'));
-% [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-% HideCursor(window);
+PsychDefaultSetup(2);screen=max(Screen('Screens'));
+[window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+HideCursor(window);
 
-% load('Gambles_12_5.mat');
-% gambles = Gambles_12_5;
-% [r,~] = size(gambles);
-% gambleShuffled = gambles(randperm(r),:);
+load('C:\Users\Steven\Documents\MATLAB\FatigueCode\Gambles_12_5.mat');
+gambles = Gambles_12_5;
+[r,~] = size(gambles);
+gambleShuffled = gambles(randperm(r),:);
 
 TextScreen(window,'Phase 5: Please wait for instructions',[1 1 1],'key');
 
 time = 4;
 freq = 2000;
 gambleShuffled_1 = gambles(randperm(r),:);
-MVCFatiguePercent = 60;
+MVCFatiguePercent = 70;
 FailureThreshold = 50;
-numFatigueTrials = 2; %%%%%%%%%%%%%%HOW MANY DO WE DO? (TEST THIS)
+numFatigueTrials = r/10; %%%%%%%%%%%%%%HOW MANY DO WE DO? (TEST THIS)
 minFatigueContractions = 10;
 numFatiguedChoiceTrials = r;
 choiceFatiguedChoiceTrial = zeros(numFatiguedChoiceTrials,1);
 reacttimeFatiguedChoiceTrial = zeros(numFatiguedChoiceTrials,1);
+voltFatiguedChoiceTrial = zeros(500,time*freq);
+FatiguedChoiceTiming = zeros(500,time*freq);
 
 for i = 1:numFatigueTrials
     TextScreen(window,'Fatigue Phase: Press any key to continue',[1 1 1],'key');
@@ -251,7 +255,9 @@ for i = 1:numFatigueTrials
     success = 0;
     failure = 0;
     for n = 1:minFatigueContractions
-        outcome = ThermScreen(window,baseline,MVC,MVCFatiguePercent/100,'horizontal',time);
+        [outcome,volt,timing] = ThermScreen(window,baseline,MVC,MVCFatiguePercent/100,'horizontal',time);
+        voltFatiguedChoiceTrial(n,:) = volt;
+        FatiguedChoiceTiming(n,:) = timing;
         if outcome == 1
             TextScreen(window,'SUCCESS',[0 1 0],1);
             success = success+1;
@@ -263,8 +269,12 @@ for i = 1:numFatigueTrials
     end
     % conditional extra trials - if 50% failure, then criteria for fatigue
     % is met (changed by altering FailureThreshold)
+    n = minFatigueContractions;
     while success/failure > (100-FailureThreshold)/FailureThreshold
-        outcome = ThermScreen(window,baseline,MVC,MVCFatiguePercent/100,'horizontal',time);
+        n = n+1;
+        [outcome,volt,timing] = ThermScreen(window,baseline,MVC,MVCFatiguePercent/100,'horizontal',time);
+        voltFatiguedChoiceTrial(n,:) = volt;
+        FatiguedChoiceTiming(n,:) = timing;
         if outcome == 1
             TextScreen(window,'SUCCESS',[0 1 0],1);
             success = success+1;
