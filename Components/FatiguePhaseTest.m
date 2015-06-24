@@ -47,54 +47,106 @@ MVC = 0.8*MVC;
 
 TextScreen(window,'End of Phase 1',[1 1 1],'key');
 
+TextScreen(window,'Phase 5: Please wait for instructions',[1 1 1],'key');
+
 time = 4;
 freq = 2000;
 gambleShuffled_1 = gambles(randperm(r),:);
 MVCFatiguePercent = 80;
-FailureThreshold = 50;
-numFatigueTrials = r/10; %%%%%%%%%%%%%%HOW MANY DO WE DO? (TEST THIS)
-minFatigueContractions = 10;
-numFatiguedChoiceTrials = r;
+FailureThreshold = 75;
+numChoicesPerTrial = 10;
+numFatigueTrials = r/numChoicesPerTrial; %%%%%%%%%%%%%%HOW MANY DO WE DO? (TEST THIS)
+minFatigueContractions = 20;
+numFatigueContractions = 5;
+numFatiguedChoiceTrials = r; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 choiceFatiguedChoiceTrial = zeros(numFatiguedChoiceTrials,1);
 reacttimeFatiguedChoiceTrial = zeros(numFatiguedChoiceTrials,1);
-voltFatiguedChoiceTrial = zeros(500,time*freq);
-FatiguedChoiceTiming = zeros(500,time*freq);
+initvoltFatiguedChoiceTrial = zeros(500,time*freq);
+initFatiguedChoiceTiming = zeros(500,time*freq);
+voltFatiguedChoiceTrial = zeros(numFatigueContractions*numFatigueTrials,time*freq);
+FatiguedChoiceTiming = zeros(numFatigueContractions*numFatigueTrials,time*freq);
 
-for i = 1:numFatigueTrials
-    TextScreen(window,'Fatigue Phase: Press any key to continue',[1 1 1],'key');
+TextScreen(window,'FATIGUE PHASE: PRESS ANY KEY TO CONTINUE',[1 1 1],'key');
+
+% Initial Fatigue - reps until 75% failure, minimum of 20 trials
+TextScreen(window,'GET READY',[1 1 1],1.5);
+success = 0;
+failure = 0;
+for n = 1:minFatigueContractions
+    [outcome,volt,timing] = ThermScreen(window,baseline,MVC,MVCFatiguePercent/100,'horizontal',time);
+    initvoltFatiguedChoiceTrial(n,:) = volt;
+    initFatiguedChoiceTiming(n,:) = timing;
+    if outcome == 1
+        success = success+1;
+    elseif outcome == 0
+        failure = failure+1;
+    end
+    FixationCross(window,3);
+end
+n = minFatigueContractions;
+while success/failure > (100-FailureThreshold)/FailureThreshold
+    n = n+1;
+    [outcome,volt,timing] = ThermScreen(window,baseline,MVC,MVCFatiguePercent/100,'horizontal',time);
+    initvoltFatiguedChoiceTrial(n,:) = volt;
+    initFatiguedChoiceTiming(n,:) = timing;
+    if outcome == 1
+        success = success+1;
+    elseif outcome == 0
+        failure = failure+1;
+    end
+    FixationCross(window,3);
+end 
+
+% PsychDefaultSetup(2);screen=max(Screen('Screens'));
+% [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+% HideCursor(window);
+
+% Post-Fatigue initial trials
+TextScreen(window,'GAMBLE PHASE',[1 1 1],2);
+TextScreen(window,'GET READY',[1 1 1],1.5);
+
+for i = 1:numChoicesPerTrial
+    flip = gambleShuffled_1(i,2);
+    sure = gambleShuffled_1(i,1);
+    [choice,ReactTime] = GambleScreen(window,flip,sure,time);
+    FixationCross(window,1+3*rand);
+    choiceFatiguedChoiceTrial(i) = choice; %NOTE: 1 = flip, 0 = sure
+    reacttimeFatiguedChoiceTrial(i) = ReactTime;
+end
+
+% subsequent trials - 5 reps per trial
+for i = 2:numFatigueTrials
+    TextScreen(window,'FATIGUE PHASE',[1 1 1],2);
     TextScreen(window,'GET READY',[1 1 1],1.5);
     
-    % initial mandatory trials (adjusted by minFatigueContractions)
-    success = 0;
-    failure = 0;
-    for n = 1:minFatigueContractions
-        [outcome,volt,timing] = ThermScreen(window,baseline,MVC,MVCFatiguePercent/100,'horizontal',time);
+    FatigueLeftIndex = (i-2)*numFatigueContractions+1;
+    FatigueRightIndex = (i-1)*numFatigueContractions;
+    for n = FatigueLeftIndex:FatigueRightIndex
+        [~,volt,timing] = ThermScreen(window,baseline,MVC,MVCFatiguePercent/100,'horizontal',time);
         voltFatiguedChoiceTrial(n,:) = volt;
         FatiguedChoiceTiming(n,:) = timing;
-        if outcome == 1
-            TextScreen(window,'SUCCESS',[0 1 0],1);
-            success = success+1;
-        elseif outcome == 0
-            TextScreen(window,'FAILURE',[1 0 0],1);
-            failure = failure+1;
-        end
         FixationCross(window,3);
     end
-    % conditional extra trials - if 50% failure, then criteria for fatigue
-    % is met (changed by altering FailureThreshold)
-    n = minFatigueContractions;
-    while success/failure > (100-FailureThreshold)/FailureThreshold
-        n = n+1;
-        [outcome,volt,timing] = ThermScreen(window,baseline,MVC,MVCFatiguePercent/100,'horizontal',time);
-        voltFatiguedChoiceTrial(n,:) = volt;
-        FatiguedChoiceTiming(n,:) = timing;
-        if outcome == 1
-            TextScreen(window,'SUCCESS',[0 1 0],1);
-            success = success+1;
-        elseif outcome == 0
-            TextScreen(window,'FAILURE',[1 0 0],1);
-            failure = failure+1;
-        end
-        FixationCross(window,3);
-    end 
+    
+    % Post-Fatigue Choice Trials
+    TextScreen(window,'GAMBLE PHASE',[1 1 1],2);
+    TextScreen(window,'GET READY',[1 1 1],1.5);
+    ChoiceLeftIndex = (i-1)*numChoicesPerTrial+1;
+    ChoiceRightIndex = i*numChoicesPerTrial;
+    for j = ChoiceLeftIndex:ChoiceRightIndex
+        flip = gambleShuffled_1(j,2);
+        sure = gambleShuffled_1(j,1);
+        [choice,ReactTime] = GambleScreen(window,flip,sure,4);
+        FixationCross(window,1+3*rand);
+        choiceFatiguedChoiceTrial(j) = choice; %NOTE: 1 = flip, 0 = sure
+        reacttimeFatiguedChoiceTrial(j) = ReactTime;
+    end
 end
+
+FatiguedChoiceTrial = [gambleShuffled_1(:,[1 2]) choiceFatiguedChoiceTrial ...
+    reacttimeFatiguedChoiceTrial];
+% ^rows-fatigued gamble trial#, column1-sure, column2-flip, column3-choice,
+% column4-reaction time
+
+TextScreen(window,'End of Phase 5',[1 1 1],'key');
+sca;

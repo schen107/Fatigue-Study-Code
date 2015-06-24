@@ -26,19 +26,19 @@ if nargin == 4
         key = NaN;
     end
 
-elseif nargin == 5
-    % cd('C:\Users\StevenChen\Documents\MATLAB\Fatigue Code\DAQ functions'); %Personal Laptop
-    cd('C:\Users\Steven\Documents\MATLAB\FatigueCode\DAQ functions'); %Steven's Account
-    key = NaN;
-    baseline = varargin{2};
-    freq = 2000;
-    time = 100; %some large interval of time
-    lever = 1;
-    while lever
-       startCollect(time,freq);
-       if 
-       
-    end
+% elseif nargin == 5
+%     % cd('C:\Users\StevenChen\Documents\MATLAB\Fatigue Code\DAQ functions'); %Personal Laptop
+%     cd('C:\Users\Steven\Documents\MATLAB\FatigueCode\DAQ functions'); %Steven's Account
+%     key = NaN;
+%     baseline = varargin{2};
+%     freq = 2000;
+%     time = 100; %some large interval of time
+%     lever = 1;
+%     while lever
+%        startCollect(time,freq);
+%        if 
+%        
+%     end
     
     
 elseif nargin == 6
