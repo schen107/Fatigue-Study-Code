@@ -62,7 +62,7 @@ t0=GetSecs;
 choice = nan(1,1);
 ReactTime = time;
 while GetSecs-t0 <= time
-    [~, ~, keyCode] = KbCheck;
+    [~,keyCode] = KbStrokeWait;
     if KbName(keyCode) == 'n' %flip
         choice = 1;
         ReactTime = GetSecs-t0;
