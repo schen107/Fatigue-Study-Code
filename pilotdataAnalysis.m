@@ -6,17 +6,29 @@ SubjectDir = fullfile(rootpath,SubjectID);
 load(fullfile(SubjectDir,'MVCPhase'));
 load(fullfile(SubjectDir,'FatiguedChoicePhase'));
 
-MVC = max(MVCTrial');
-MVCavg = mean(MVCTrial');
+numTrials = 17;
 
-initfatigue = max(initvoltFatiguedChoiceTrial');
-initfatigue = initfatigue(1:find(initfatigue,1,'last'));
-initfatigueavg = mean(initvoltFatiguedChoiceTrial');
-initfatigueavg = initfatigueavg(1:find(initfatigueavg,1,'last'));
+MVC = max(voltMVCTrial');
+MVCavg = mean(voltMVCTrial');
 
-fatigue = max(voltFatiguedChoiceTrial');
-fatigueavg = mean(voltFatiguedChoiceTrial');
+fatigue = [];
+fatigueavg = [];
 
-plot([MVC initfatigue fatigue],'bo');
-hold on;
-plot([MVCavg initfatigueavg fatigueavg],'ro');
+outcomePlot = zeros(1,numTrials);
+for i = 1:numTrials
+    fatigue = [fatigue max(voltFatiguedChoiceTrial(:,:,i)')];
+    fatigueavg = [fatigueavg mean(voltFatiguedChoiceTrial(:,:,i)')];
+    
+    outcome = outcomeFatiguedChoiceTrial(:,i);
+    outcome(isnan(outcome)) = [];
+    outcomePlot(i) = length(outcome);
+end
+
+fatigue(isnan(fatigue)) = [];
+fatigueavg(isnan(fatigueavg)) = [];
+
+% plot([MVC fatigue],'bo');
+% hold on;
+% plot([MVCavg fatigueavg],'ro');
+
+plot(outcomePlot);
