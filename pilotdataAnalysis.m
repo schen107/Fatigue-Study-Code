@@ -30,5 +30,5 @@ fatigueavg(isnan(fatigueavg)) = [];
 % plot([MVC fatigue],'bo');
 % hold on;
 % plot([MVCavg fatigueavg],'ro');
-
-plot(outcomePlot);
+% 
+% plot(outcomePlot);

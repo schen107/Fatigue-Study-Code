@@ -1,5 +1,5 @@
-function [outcome,volt,timing] = ThermScreen(window,baseline,MVC,goal,orientation,time)
-% value is between 0-1
+function [outcome,volt,timing] = ThermScreen(window,baseline,MVC,goal,successwindow,orientation,time)
+% successwindow is between 0-1
 % time is in sec
 % orientation is either 'horizontal' or 'vertical'
 
@@ -24,7 +24,7 @@ if strcmp(orientation,'vertical')
     ThermBarLeft = ThermRect(1); 
     
     % Draw Success Rectangle
-    SuccessWindow = 0.05;
+    SuccessWindow = successwindow;
     SuccessHeight = ThermHeight*(SuccessWindow*2);
     SuccessWidth = xpix*0.04;
     SuccessRect = [0 0 SuccessWidth SuccessHeight];
