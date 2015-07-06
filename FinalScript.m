@@ -187,9 +187,9 @@ try
     % MVC = 1;
     % sensor = 1;
 
-    % PsychDefaultSetup(2);screen=max(Screen('Screens'));
-    % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-    % HideCursor(window);
+    PsychDefaultSetup(2);screen=max(Screen('Screens'));
+    [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+    HideCursor(window);
 
     TextScreen(window,'Phase 4: Please wait for instructions',[1 1 1],'key');
     TextScreen(window,'GET READY',[1 1 1],1.5);

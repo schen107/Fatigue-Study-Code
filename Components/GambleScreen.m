@@ -6,7 +6,6 @@ function [choice,ReactTime] = GambleScreen(window,flip,sure,time)
 % outputs: choice - flip (1) vs sure (0)
 % ReactTime - time it took to make the choice (s)
 
-pause(0.5);
 white = WhiteIndex(window); black = BlackIndex(window);
 [xpix,ypix] = Screen('WindowSize',window);
 xcenter = xpix/2; ycenter = ypix/2;
@@ -58,11 +57,12 @@ DrawFormattedText(window,'Sure',0.6*xpix,0.61*ypix);
 Screen('Flip',window);
 
 KbName('UnifyKeyNames');
+RestrictKeysForKbCheck([77,78]);
 t0=GetSecs;
-choice = nan(1,1);
-ReactTime = time;
-while GetSecs-t0 <= time
-    [~,keyCode] = KbStrokeWait;
+choice = nan;
+ReactTime = nan;
+while true
+    [~,keyCode] = KbStrokeWait([],t0+time);
     if KbName(keyCode) == 'n' %flip
         choice = 1;
         ReactTime = GetSecs-t0;
@@ -72,6 +72,7 @@ while GetSecs-t0 <= time
         ReactTime = GetSecs-t0;
         break
     end
+    break
 end
-
+RestrictKeysForKbCheck([]);
 end
