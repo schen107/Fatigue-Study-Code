@@ -19,7 +19,7 @@ for i = 1:numTrials
     fatigue = [fatigue max(voltFatiguedChoiceTrial(:,:,i)')];
     fatigueavg = [fatigueavg mean(voltFatiguedChoiceTrial(:,:,i)')];
     
-    outcome = outcomeFatiguedChoiceTrial(:,i);
+    outcome = outcomeFatiguedChoiceTrial(i,:);
     outcome(isnan(outcome)) = [];
     outcomePlot(i) = length(outcome);
 end

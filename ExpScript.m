@@ -1,14 +1,17 @@
-% Final Script for Fatigue Study
+% Final Experiment Script for Fatigue Study
 % Created by Steven Chen
 
 try
     clear; clc;
     rng('shuffle'); %Generate new random seed
+    addpath('C:\Users\Steven\Documents\MATLAB\FatigueCode\DAQ functions');
+    addpath('C:\Users\Steven\Documents\MATLAB\FatigueCode\Components');
+
 
     %% Setup Subject Data--------------------------------------------------
     % rootpath='Y:\Fatigue Experiment'; %Patrick's Account
     % rootpath = 'C:\Users\mcdonaldme\Desktop'; %Megan's Account
-    rootpath = 'C:\Users\Steven\Documents'; %Steven's Account
+    rootpath = 'C:\Users\Steven\Documents\FatigueStudy'; %Steven's Account
     SubjectID=input('Enter Subject Identifier: ','s');
     FolderName = 'Pilot Data';
     SubjectDir = fullfile(rootpath,FolderName,SubjectID);
@@ -37,7 +40,6 @@ try
     % Personal Laptop
     % cd('C:\Users\StevenChen\Documents\MATLAB\Fatigue Code\DAQ functions');
     % Steven's Account
-    cd('C:\Users\Steven\Documents\MATLAB\FatigueCode\DAQ functions'); 
     time = 5;
     freq = 2000;
     startCollect(time,freq);
@@ -48,7 +50,6 @@ try
     % Personal Laptop
     % cd 'C:\Users\Steven Chen\Documents\MATLAB\Fatigue Code\Components'
     % Steven's Computer
-    cd('C:\Users\Steven\Documents\MATLAB\FatigueCode\Components')
     TextScreen(window,'Calibrating - Dont touch the sensor!',[1 1 1],5);
     baseline = mode(DAR(2,:));
 
@@ -187,9 +188,9 @@ try
     % MVC = 1;
     % sensor = 1;
 
-    PsychDefaultSetup(2);screen=max(Screen('Screens'));
-    [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-    HideCursor(window);
+    % PsychDefaultSetup(2);screen=max(Screen('Screens'));
+    % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+    % HideCursor(window);
 
     TextScreen(window,'Phase 4: Please wait for instructions',[1 1 1],'key');
     TextScreen(window,'GET READY',[1 1 1],1.5);
@@ -226,17 +227,18 @@ try
     % MVC = 1;
     % sensor = 1;
     % 
-    % PsychDefaultSetup(2);screen=max(Screen('Screens'));
-    % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-    % HideCursor(window);
-
-    % load('C:\Users\Steven\Documents\MATLAB\FatigueCode\Gambles_12_5.mat');
-    % gambles = Gambles_12_5;
-    % [r,~] = size(gambles);
-    % gambleShuffled = gambles(randperm(r),:);
+%     PsychDefaultSetup(2);screen=max(Screen('Screens'));
+%     [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+%     HideCursor(window);
+% 
+%     load('C:\Users\Steven\Documents\MATLAB\FatigueCode\Gambles_12_5.mat');
+%     gambles = Gambles_12_5;
+%     [r,~] = size(gambles);
+%     gambleShuffled = gambles(randperm(r),:);
 
     TextScreen(window,'Phase 5: Please wait for instructions',[1 1 1],'key');
-
+%     Image1 = Screen('GetImage',window);
+    
     time = 4;
     freq = 2000;
     gambleShuffled_1 = gambles(randperm(r),:);
@@ -249,7 +251,7 @@ try
     reacttimeFatiguedChoiceTrial = NaN(numFatiguedChoiceTrials,1);
     voltFatiguedChoiceTrial = NaN(100,time*freq,numFatigueTrials);
     timingFatiguedChoiceTrial = NaN(100,time*freq,numFatigueTrials);
-    outcomeFatiguedChoiceTrial = NaN(100,numFatigueTrials);
+    outcomeFatiguedChoiceTrial = NaN(numFatigueTrials,100);
     
     for i = 1:numFatigueTrials
         success = 0;
@@ -262,13 +264,18 @@ try
             minFatigueReps = 5;
         end
         TextScreen(window,'SQUEEZE PHASE',[1 1 1],2);
+%         Image2 = Screen('GetImage',window);
         TextScreen(window,'GET READY',[1 1 1],1.5);
+%         Image3 = Screen('GetImage',window);
         % min reps
         for n = 1:minFatigueReps
             [outcome,volt,timing] = ThermScreen(window,baseline,MVC,MVCFatiguePercent/100,0.05,'horizontal',time);
+%             Image4 = Screen('GetImage',window);
+            WaitSecs(2);
+%             Image5 = Screen('GetImage',window);
             voltFatiguedChoiceTrial(n,:,i) = volt;
             timingFatiguedChoiceTrial(n,:,i) = timing;
-            outcomeFatiguedChoiceTrial(n,i) = outcome;
+            outcomeFatiguedChoiceTrial(i,n) = outcome;
             if outcome == 1
                 success = success+1;
             elseif outcome == 0
@@ -283,7 +290,7 @@ try
             [outcome,volt,timing] = ThermScreen(window,baseline,MVC,MVCFatiguePercent/100,0.05,'horizontal',time);
             voltFatiguedChoiceTrial(n,:,i) = volt;
             timingFatiguedChoiceTrial(n,:,i) = timing;
-            outcomeFatiguedChoiceTrial(n,i) = outcome;
+            outcomeFatiguedChoiceTrial(i,n) = outcome;
             if outcome == 1
                 success = success+1;
             elseif outcome == 0
@@ -294,6 +301,7 @@ try
 
         % Post-Fatigue Choice Trials
         TextScreen(window,'GAMBLE PHASE',[1 1 1],2);
+%         Image6 = Screen('GetImage',window);
         TextScreen(window,'GET READY',[1 1 1],1.5);
         ChoiceLeftIndex = (i-1)*numChoicesPerTrial+1;
         ChoiceRightIndex = i*numChoicesPerTrial;
@@ -301,6 +309,7 @@ try
             flip = gambleShuffled_1(j,2);
             sure = gambleShuffled_1(j,1);
             [choice,ReactTime] = GambleScreen(window,flip,sure,4);
+%             Image7 = Screen('GetImage',window);
             FixationCross(window,1+3*rand);
             choiceFatiguedChoiceTrial(j) = choice; %NOTE: 1 = flip, 0 = sure
             reacttimeFatiguedChoiceTrial(j) = ReactTime;
