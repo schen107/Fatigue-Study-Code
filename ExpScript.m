@@ -52,15 +52,15 @@ try
     % HideCursor(window);
 
     TextScreen(window,'Phase 1: Please wait for instructions',[1 1 1],'key');
-    TextScreen(window,'GET READY',[1 1 1],1.5);
+    TextScreen(window,'Get Ready',[1 1 1],1.5);
 
     time = 4;
     freq = 2000;
     numMVCTrials = 3; %3
-    voltMVCTrial = NaN(numMVCTrials,time*freq); %rows-trial#, columns-voltages
+    voltMVCTrial = NaN(numMVCTrials,time*freq);
     timingMVCTrial = NaN(numMVCTrials,time*freq);
     for i = 1:numMVCTrials
-        [~,volt,timing] = TextScreen(window,'SQUEEZE!',[1 1 1],time,'DAQ',baseline);
+        [~,volt,timing] = TextScreen(window,'Squeeze!',[1 1 1],time,'DAQ',baseline);
         timingMVCTrial(i,:) = timing;
         voltMVCTrial(i,:) = volt;
         FixationCross(window,1+3*rand) %random duration btwn 1-4 sec
@@ -84,7 +84,7 @@ try
     % HideCursor(window);
 
     TextScreen(window,'Phase 2: Please wait for instructions',[1 1 1],'key');
-    TextScreen(window,'GET READY',[1 1 1],1.5);
+    TextScreen(window,'Get Ready',[1 1 1],1.5);
 
     time = 4;
     freq = 2000;
@@ -109,13 +109,13 @@ try
         voltAssocTrial(count,:) = volt;
         timingAssocTrial(count,:) = timing;
         if outcome == 1
-            TextScreen(window,'SUCCESS',[0 1 0],2);
+            TextScreen(window,'Success',[0 1 0],2);
         elseif outcome == 0
-            TextScreen(window,'FAILURE',[1 0 0],2);
+            TextScreen(window,'Failure',[1 0 0],2);
         FixationCross(window,1+3*rand);
         end
         while count_1 == numAssocTrials
-            TextScreen(window,'REST',[1 1 1],60);
+            TextScreen(window,'Rest',[1 1 1],60);
             count_1 = 0;
         end
     end
@@ -134,7 +134,7 @@ try
     % HideCursor(window);
 
     TextScreen(window,'Phase 3: Please wait for instructions',[1 1 1],'key');
-    TextScreen(window,'GET READY',[1 1 1],1.5);
+    TextScreen(window,'Get Ready',[1 1 1],1.5);
 
     time = 4;
     freq = 2000;
@@ -162,7 +162,7 @@ try
     % ^rows-recall trial#, column1-actual MVC percentage, column2-reported MVC
     % percentage, column3-reaction time
 
-    TextScreen(window,'REST',[1 1 1],60);
+    TextScreen(window,'Rest',[1 1 1],60);
 
     TextScreen(window,'End of Phase 3',[1 1 1],'key');
 
@@ -177,7 +177,7 @@ try
     % HideCursor(window);
 
     TextScreen(window,'Phase 4: Please wait for instructions',[1 1 1],'key');
-    TextScreen(window,'GET READY',[1 1 1],1.5);
+    TextScreen(window,'Get Ready',[1 1 1],1.5);
 
     load('C:\Users\Steven\Documents\MATLAB\FatigueCode\Gambles_12_5.mat');
     gambles = Gambles_12_5;
@@ -245,14 +245,14 @@ try
             % Subsequent Fatigue - minimum of 5 reps
             minFatigueReps = 5;
         end
-        TextScreen(window,'SQUEEZE PHASE',[1 1 1],2);
-        TextScreen(window,'GET READY',[1 1 1],1.5);
+        TextScreen(window,'Squeeze Phase',[1 1 1],2);
+        TextScreen(window,'Get Ready',[1 1 1],1.5);
         % min reps
-        for n = 1:minFatigueReps
+        for i = 1:minFatigueReps
             [outcome,volt,timing] = ThermScreen(window,baseline,MVC,MVCFatiguePercent/100,0.05,'horizontal',time);
-            voltFatiguedChoiceTrial(n,:,i) = volt;
-            timingFatiguedChoiceTrial(n,:,i) = timing;
-            outcomeFatiguedChoiceTrial(i,n) = outcome;
+            voltFatiguedChoiceTrial(i,:,i) = volt;
+            timingFatiguedChoiceTrial(i,:,i) = timing;
+            outcomeFatiguedChoiceTrial(i,i) = outcome;
             if outcome == 1
                 success = success+1;
             elseif outcome == 0
@@ -261,13 +261,13 @@ try
             FixationCross(window,3);
         end
         % until failure threshold
-        n = minFatigueReps;
+        i = minFatigueReps;
         while success/failure > (100-FailureThreshold)/FailureThreshold
-            n = n+1;
+            i = i+1;
             [outcome,volt,timing] = ThermScreen(window,baseline,MVC,MVCFatiguePercent/100,0.05,'horizontal',time);
-            voltFatiguedChoiceTrial(n,:,i) = volt;
-            timingFatiguedChoiceTrial(n,:,i) = timing;
-            outcomeFatiguedChoiceTrial(i,n) = outcome;
+            voltFatiguedChoiceTrial(i,:,i) = volt;
+            timingFatiguedChoiceTrial(i,:,i) = timing;
+            outcomeFatiguedChoiceTrial(i,i) = outcome;
             if outcome == 1
                 success = success+1;
             elseif outcome == 0
@@ -277,8 +277,8 @@ try
         end
 
         % Post-Fatigue Choice Trials
-        TextScreen(window,'GAMBLE PHASE',[1 1 1],2);
-        TextScreen(window,'GET READY',[1 1 1],1.5);
+        TextScreen(window,'Gamble Phase',[1 1 1],2);
+        TextScreen(window,'Get Ready',[1 1 1],1.5);
         ChoiceLeftIndex = (i-1)*numChoicesPerTrial+1;
         ChoiceRightIndex = i*numChoicesPerTrial;
         for j = ChoiceLeftIndex:ChoiceRightIndex
@@ -305,10 +305,10 @@ try
     % Dummy Vars
     % MVC = 1;
 
-    % PsychDefaultSetup(2);screen=max(Screen('Screens'));
-    % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-    % HideCursor(window);
-
+    PsychDefaultSetup(2);screen=max(Screen('Screens'));
+    [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+    HideCursor(window);
+    
     % load('C:\Users\Steven\Documents\MATLAB\FatigueCode\Gambles_12_5.mat');
     % gambles = Gambles_12_5;
     % [r,~] = size(gambles);
@@ -316,90 +316,55 @@ try
     % gambleShuffled_1 = gambles(randperm(r),:);
 
     TextScreen(window,'Phase 6: Please wait for instructions',[1 1 1],'key');
-    TextScreen(window,'GET READY',[1 1 1],1.5);
+    TextScreen(window,'Get Ready',[1 1 1],1.5);
 
     time = 4;
     freq = 2000;
-    % Randomly select 5 choice trials from pre/post fatigue
-    PreTrial = NaN(5,1);
-    PostTrial = NaN(5,1);
+    % Randomly select 10 choice trials from pre/post fatigue
+    CombinedTrial = [ChoiceTrial; FatiguedChoiceTrial];
+    TrialSelectionTrial = NaN(10,1);
     count = 0;
-    for i = randperm(length(ChoiceTrial),5) 
-        % NOTE: here, length(ChoiceTrial) is the same as length(FatiguedChoiceTrial), 
-        % so both are in the same for loop. If the number of gambles for each 
-        % phase is different, this needs to be changed.
+    for i = randperm(length(CombinedTrial),10)
         count = count+1;
-        if ChoiceTrial(i,3) == 1 %Random seed to determine 0 or flip value
+        if CombinedTrial(i,3) == 1 %Random seed to determine 0 or flip value
             seed = rand;
             if seed < 0.5
-                PreTrial(count) = gambleShuffled(i,2);
+                TrialSelectionTrial(count) = CombinedTrial(i,2);
             elseif seed >= 0.5
-                PreTrial(count) = 0;
+                TrialSelectionTrial(count) = 0;
             end
-        elseif ChoiceTrial(i,3) == 0
-            PreTrial(count) = gambleShuffled(i,1);
-        end
-
-        if FatiguedChoiceTrial(i,3) == 1
-            seed = rand;
-            if seed < 0.5
-                PostTrial(count) = gambleShuffled_1(i,2);
-            elseif seed >= 0.5
-                PostTrial(count) = 0;
-            end
-        elseif FatiguedChoiceTrial(i,3) == 0
-            PostTrial(count) = gambleShuffled_1(i,1);
+        elseif CombinedTrial(i,3) == 0
+            TrialSelectionTrial(count) = CombinedTrial(i,1);
         end
     end
 
     % Play Out Gambles (1 success or 5 fails per gamble)
-    voltPreTrial = NaN(5,time*freq);
-    voltPostTrial = NaN(5,time*freq);
-    timingPreTrial = NaN(5,time*freq);
-    timingPostTrial = NaN(5,time*freq);
-    % ^NOTE: Only records the 5th trial or success trial
-    for i = 1:5
+    voltTrialSelectionTrial = NaN(5,time*freq,10);
+    timingTrialSelectionTrial = NaN(5,time*freq,10);
+    
+    for i = 1:length(TrialSelectionTrial)
         FailCount = 0;
         lever = 0;
         while lever == 0 && FailCount < 5
-            [outcome,volt,timing] = ThermScreen(window,baseline,MVC,PreTrial(i)/100,0.05,'horizontal',time);
-            voltPreTrial(i,:) = volt;
-            timingPreTrial(i,:) = timing;
+            [outcome,volt,timing] = ThermScreen(window,baseline,MVC,TrialSelectionTrial(i)/100,0.05,'horizontal',4);
+            voltTrialSelectionTrial(FailCount+1,:,i) = volt;
+            timingTrialSelectionTrial(FailCount+1,:,i) = timing;
             if outcome == 1
-                TextScreen(window,'SUCCESS',[0 1 0],2)
+                TextScreen(window,'Success',[0 1 0],2)
                 lever = 1;
-                TextScreen(window,'NEXT GAMBLE',[1 1 1],2);
-            elseif outcome == 0
-                TextScreen(window,'FAILURE',[1 0 0],2)
-                FailCount = FailCount+1;
-                if FailCount == 5
-                    TextScreen(window,'NEXT GAMBLE',[1 1 1],2);
-                end
-            end
-        end
-
-        FailCount = 0;
-        lever = 0;
-        while lever == 0 && FailCount < 5
-            [outcome,volt,timing] = ThermScreen(window,baseline,MVC,PostTrial(i)/100,0.05,'horizontal',4);
-            voltPostTrial(i,:) = volt;
-            timingPostTrial(i,:) = timing;
-            if outcome == 1
-                TextScreen(window,'SUCCESS',[0 1 0],2)
-                lever = 1;
-                if i == 5
+                if i == length(TrialSelectionTrial)
                     break;
                 else
-                    TextScreen(window,'NEXT GAMBLE',[1 1 1],2);
+                    TextScreen(window,'Next Gamble',[1 1 1],2);
                 end
             elseif outcome == 0
-                TextScreen(window,'FAILURE',[1 0 0],2)
+                TextScreen(window,'Failure',[1 0 0],2)
                 FailCount = FailCount+1;
                 if FailCount == 5
-                    if i == 5
+                    if i == length(TrialSelectionTrial)
                         break;
                     else
-                        TextScreen(window,'NEXT GAMBLE',[1 1 1],2);
+                        TextScreen(window,'Next Gamble',[1 1 1],2);
                     end
                 end
             end
@@ -422,10 +387,11 @@ try
     save(AssocFileName,'AssocTrial','voltAssocTrial','timingAssocTrial');
     save(RecallFileName,'RecallTrial','voltRecallTrial','timingRecallTrial');
     save(ChoiceFileName,'ChoiceTrial');
-    save(FatiguedChoiceFileName,'FatiguedChoiceTrial','timingFatiguedChoiceTrial', ...
-        'voltFatiguedChoiceTrial','outcomeFatiguedChoiceTrial');
-    save(TrialSelectionFileName,'PreTrial','voltPreTrial','timingPreTrial', ...
-        'PostTrial','voltPostTrial','timingPostTrial');
+    save(FatiguedChoiceFileName,'FatiguedChoiceTrial', ...
+        'timingFatiguedChoiceTrial', 'voltFatiguedChoiceTrial', ...
+        'outcomeFatiguedChoiceTrial');
+    save(TrialSelectionFileName,'TrialSelectionTrial', ...
+        'voltTrialSelectionTrial','timingTrialSelectionTrial');
 catch
     sca;
 end

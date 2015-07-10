@@ -11,9 +11,9 @@ subjects={...
 
 rootPath = 'C:\Users\Steven\Documents\FatigueStudy\Pre-Pilot Data';
 
-Bs = [];
-Ps = [];
-Params =[];
+% Bs = [];
+% Ps = [];
+% Params =[];
 
 for i = 1:size(subjects,2)
     
@@ -65,7 +65,7 @@ for i = 1:size(subjects,2)
     
     addpath('C:\Users\Steven\Documents\MATLAB\FatigueCode\Analysis Code');
     
-    paramtracker1(i,:) = fminsearch(@loglikelihood_rhomulam_effort,[.1 1],options, P1);    
+    paramtracker1(i,:) = fminsearch(@loglikelihood_rhomulam_effort,[.1 1],options, P1);
     lltracker1(1,i) = (loglikelihood_rhomulam_effort(paramtracker1(i,:),P1));
     %This evaluates the function value at the maximized parameter estimates
     %from above.  This acts as the fitted log likelihood for the choice data. 
@@ -92,10 +92,12 @@ end
 %Test Statistics using the log-liklihood ratio.
 D1 = -2*(lltracker1-lltrackernull1);
 D2 = -2*(lltracker2-lltrackernull2);
+DCompare = -2*(lltracker2-lltracker1);
 % Pvals = chi2pdf(D,1);
 
 Pvals1 = 1-chi2cdf(D1,1);
 Pvals2 = 1-chi2cdf(D2,1);
+PvalsCompare = 1-chi2cdf(DCompare,1);
 %^THIS IS RIGHT. Obtain p-values for these observations.
 
 %--------------------------------------------------------------------------
