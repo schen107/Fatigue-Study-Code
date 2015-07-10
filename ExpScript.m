@@ -6,8 +6,8 @@ try
     rng('shuffle'); %Generate new random seed
     addpath('C:\Users\Steven\Documents\MATLAB\FatigueCode\DAQ functions');
     addpath('C:\Users\Steven\Documents\MATLAB\FatigueCode\Components');
-
-
+    
+    global DAR
     %% Setup Subject Data--------------------------------------------------
     % rootpath='Y:\Fatigue Experiment'; %Patrick's Account
     % rootpath = 'C:\Users\mcdonaldme\Desktop'; %Megan's Account
@@ -27,7 +27,6 @@ try
     %% Setup DAQ-----------------------------------------------------------
     % Dummy
     % sensor = 1;
-    global DAR
     % Old DAQ
     % sensor = analoginput('mcc'); %Default sample rate: 1000
     % chans=addchannel(sensor,0);
@@ -37,29 +36,17 @@ try
     % baseline = getsample(sensor);
 
     % New DAQ
-    % Personal Laptop
-    % cd('C:\Users\StevenChen\Documents\MATLAB\Fatigue Code\DAQ functions');
-    % Steven's Account
     time = 5;
     freq = 2000;
     startCollect(time,freq);
 
-    % pause(5);
-    % KKI Computer
-    % cd('Y:\Fatigue Code\Components')
-    % Personal Laptop
-    % cd 'C:\Users\Steven Chen\Documents\MATLAB\Fatigue Code\Components'
-    % Steven's Computer
     TextScreen(window,'Calibrating - Dont touch the sensor!',[1 1 1],5);
     baseline = mode(DAR(2,:));
 
     %% PHASE 1: MAXIMUM VOLUNTARY CONTRACTION----------------------------------
 
     % For running only this phase
-
-    % Dummy
-    % sensor = 1;
-
+    
     % PsychDefaultSetup(2);screen=max(Screen('Screens'));
     % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
     % HideCursor(window);
@@ -91,7 +78,6 @@ try
     % For running only this phase
     % Dummy Vars
     % MVC = 1;
-    % sensor = 1;
     % 
     % PsychDefaultSetup(2);screen=max(Screen('Screens'));
     % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
@@ -142,7 +128,6 @@ try
 
     % Dummy Vars
     % MVC = 1;
-    % sensor = 1;
 
     % PsychDefaultSetup(2);screen=max(Screen('Screens'));
     % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
@@ -186,7 +171,6 @@ try
     % For running only this phase
     % Dummy Vars
     % MVC = 1;
-    % sensor = 1;
 
     % PsychDefaultSetup(2);screen=max(Screen('Screens'));
     % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
@@ -225,19 +209,17 @@ try
 
     % Dummy Vars
     % MVC = 1;
-    % sensor = 1;
-    % 
+    
 %     PsychDefaultSetup(2);screen=max(Screen('Screens'));
 %     [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
 %     HideCursor(window);
-% 
+
 %     load('C:\Users\Steven\Documents\MATLAB\FatigueCode\Gambles_12_5.mat');
 %     gambles = Gambles_12_5;
 %     [r,~] = size(gambles);
 %     gambleShuffled = gambles(randperm(r),:);
 
     TextScreen(window,'Phase 5: Please wait for instructions',[1 1 1],'key');
-%     Image1 = Screen('GetImage',window);
     
     time = 4;
     freq = 2000;
@@ -264,15 +246,10 @@ try
             minFatigueReps = 5;
         end
         TextScreen(window,'SQUEEZE PHASE',[1 1 1],2);
-%         Image2 = Screen('GetImage',window);
         TextScreen(window,'GET READY',[1 1 1],1.5);
-%         Image3 = Screen('GetImage',window);
         % min reps
         for n = 1:minFatigueReps
             [outcome,volt,timing] = ThermScreen(window,baseline,MVC,MVCFatiguePercent/100,0.05,'horizontal',time);
-%             Image4 = Screen('GetImage',window);
-            WaitSecs(2);
-%             Image5 = Screen('GetImage',window);
             voltFatiguedChoiceTrial(n,:,i) = volt;
             timingFatiguedChoiceTrial(n,:,i) = timing;
             outcomeFatiguedChoiceTrial(i,n) = outcome;
@@ -301,7 +278,6 @@ try
 
         % Post-Fatigue Choice Trials
         TextScreen(window,'GAMBLE PHASE',[1 1 1],2);
-%         Image6 = Screen('GetImage',window);
         TextScreen(window,'GET READY',[1 1 1],1.5);
         ChoiceLeftIndex = (i-1)*numChoicesPerTrial+1;
         ChoiceRightIndex = i*numChoicesPerTrial;
@@ -309,7 +285,6 @@ try
             flip = gambleShuffled_1(j,2);
             sure = gambleShuffled_1(j,1);
             [choice,ReactTime] = GambleScreen(window,flip,sure,4);
-%             Image7 = Screen('GetImage',window);
             FixationCross(window,1+3*rand);
             choiceFatiguedChoiceTrial(j) = choice; %NOTE: 1 = flip, 0 = sure
             reacttimeFatiguedChoiceTrial(j) = ReactTime;
@@ -329,8 +304,7 @@ try
 
     % Dummy Vars
     % MVC = 1;
-    % sensor = 1;
-    % 
+
     % PsychDefaultSetup(2);screen=max(Screen('Screens'));
     % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
     % HideCursor(window);

@@ -5,8 +5,7 @@ function [outcome,volt,timing] = ThermScreen(window,baseline,MVC,goal,successwin
 
 global DAR IND
 
-% cd('C:\Users\StevenChen\Documents\MATLAB\Fatigue Code\DAQ functions'); %Personal Laptop
-cd('C:\Users\Steven\Documents\MATLAB\FatigueCode\DAQ functions'); %Steven's Account
+addpath('C:\Users\Steven\Documents\MATLAB\FatigueCode\DAQ functions'); %Steven's Account
 
 white = WhiteIndex(window); black = BlackIndex(window);
 [xpix,ypix] = Screen('WindowSize',window);
@@ -164,7 +163,5 @@ elseif strcmp(orientation,'horizontal')
         outcome = 0;
     end
 end
-
-cd('C:\Users\Steven\Documents\MATLAB\FatigueCode\Components'); %Steven's Account
 
 end

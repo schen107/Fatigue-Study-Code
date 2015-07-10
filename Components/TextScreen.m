@@ -5,6 +5,8 @@ function [key,volt,timing] = TextScreen(window,message,color,varargin)
 
 global DAR IND
 
+addpath('C:\Users\Steven\Documents\MATLAB\FatigueCode\DAQ functions');
+
 Screen('TextFont',window,'Ariel');
 Screen('TextSize',window,40);
 
@@ -42,8 +44,6 @@ if nargin == 4
     
     
 elseif nargin == 6
-    % cd('C:\Users\StevenChen\Documents\MATLAB\Fatigue Code\DAQ functions'); %Personal Laptop
-    cd('C:\Users\Steven\Documents\MATLAB\FatigueCode\DAQ functions'); %Steven's Account
     key = NaN;
     time = varargin{1};
     baseline = varargin{3};
@@ -58,7 +58,5 @@ elseif nargin == 6
     timing = DAR(1,:);
 
 end
-
-cd('C:\Users\Steven\Documents\MATLAB\FatigueCode\Components'); %Steven's Account
 
 end

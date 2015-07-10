@@ -1,5 +1,5 @@
       % P is a "parameter" matrix, representing experimental design (lotteries).  
-      %rows are trials, column 1 is x1, column 1 is x2 
+      %rows are trials, column 1 is x1, column 2 is x2 
       %column 3 is Pr(x1), column 4 is the binary choice variable: y value
       %
       %x is the prospect theory param. vector, in the order, lambda, rho, mu
