@@ -5,7 +5,7 @@ IND = 0;
 seconds = 10;
 freq = 2000;
 
-cd('C:\Users\Steven\Documents\MATLAB\FatigueCode\DAQ functions');
+addpath('C:\Users\Steven\Documents\MATLAB\FatigueCode\DAQ functions');
 
 startCollect(seconds,freq);
 

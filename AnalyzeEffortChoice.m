@@ -4,24 +4,27 @@
 
 clc;clear;
 
-subjects={...
-    'joetest 7215 80 75'...
-    'megantest 7615 80 75'...
-    };
+rootpath = 'C:\Users\Steven\Documents\FatigueStudy\Data\Pilot Data';
 
-rootPath = 'C:\Users\Steven\Documents\FatigueStudy\Pre-Pilot Data';
+SubjectID={...
+    'KM_72015'...
+    'SM_71515'...
+    'JH_71515'...
+    'RL_71415'...
+    };
 
 % Bs = [];
 % Ps = [];
 % Params =[];
 
-for i = 1:size(subjects,2)
+for i = 1:size(SubjectID,2)
     
     %Column 1 -- Sure
     %Column 2 -- Flip
 %--------------------------------------------------------------------------
-    load([rootPath, filesep, subjects{i} '\ChoicePhase.mat']);
-    load([rootPath, filesep, subjects{i} '\FatiguedChoicePhase.mat']);
+    SubjectDir = fullfile(rootpath,SubjectID(i));
+    load(fullfile(char(SubjectDir),'ChoicePhase'));
+    load(fullfile(char(SubjectDir),'FatiguedChoicePhase'));
     
     PrefatGambles = ChoiceTrial(:,1:3);
     PostfatGambles = FatiguedChoiceTrial(:,1:3);

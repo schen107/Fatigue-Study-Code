@@ -1,19 +1,19 @@
 % Final Experiment Script for Fatigue Study
 % Created by Steven Chen
 
+clear; clc;
+global DAR
+
 try
-    clear; clc;
+    %% General Setup-------------------------------------------------------
     rng('shuffle'); %Generate new random seed
     addpath('C:\Users\Steven\Documents\MATLAB\FatigueCode\DAQ functions');
     addpath('C:\Users\Steven\Documents\MATLAB\FatigueCode\Components');
     
-    global DAR
     %% Setup Subject Data--------------------------------------------------
-    % rootpath='Y:\Fatigue Experiment'; %Patrick's Account
-    % rootpath = 'C:\Users\mcdonaldme\Desktop'; %Megan's Account
-    rootpath = 'C:\Users\Steven\Documents\FatigueStudy'; %Steven's Account
+    rootpath = 'C:\Users\Steven\Documents\FatigueStudy\Data';
     SubjectID=input('Enter Subject Identifier: ','s');
-    FolderName = 'Pilot Data';
+    FolderName = 'Pilot Data'; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     SubjectDir = fullfile(rootpath,FolderName,SubjectID);
     mkdir(SubjectDir);
     FileName = fullfile(SubjectDir,SubjectID);
@@ -25,17 +25,17 @@ try
     HideCursor(window);
 
     %% Setup DAQ-----------------------------------------------------------
-    % Dummy
-    % sensor = 1;
-    % Old DAQ
-    % sensor = analoginput('mcc'); %Default sample rate: 1000
-    % chans=addchannel(sensor,0);
-    % start(sensor);
-    % TextScreen(window,'Calibrating - Dont touch the sensor!',[1 1 1],5);
-    % % Pausing to be sure that the sensor has time to equilibriate
-    % baseline = getsample(sensor);
-
-    % New DAQ
+%     Dummy
+%     sensor = 1;
+%     Old DAQ
+%     sensor = analoginput('mcc'); %Default sample rate: 1000
+%     chans=addchannel(sensor,0);
+%     start(sensor);
+%     TextScreen(window,'Calibrating - Dont touch the sensor!',[1 1 1],5);
+%     Pausing to be sure that the sensor has time to equilibriate
+%     baseline = getsample(sensor);
+% 
+%     New DAQ
     time = 5;
     freq = 2000;
     startCollect(time,freq);
@@ -44,12 +44,15 @@ try
     baseline = mode(DAR(2,:));
 
     %% PHASE 1: MAXIMUM VOLUNTARY CONTRACTION----------------------------------
-
-    % For running only this phase
-    
-    % PsychDefaultSetup(2);screen=max(Screen('Screens'));
-    % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-    % HideCursor(window);
+%     Here we are testing the subject's MVC, and using that value to
+%     normalize the forces exerted in the subsequent parts of the
+%     experiment.
+%     
+%     For running only this phase
+% 
+%     PsychDefaultSetup(2);screen=max(Screen('Screens'));
+%     [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+%     HideCursor(window);
 
     TextScreen(window,'Phase 1: Please wait for instructions',[1 1 1],'key');
     TextScreen(window,'Get Ready',[1 1 1],1.5);
@@ -74,14 +77,16 @@ try
     TextScreen(window,'End of Phase 1',[1 1 1],'key');
 
     %% PHASE 2: ASSOCIATION----------------------------------------------------
-
-    % For running only this phase
-    % Dummy Vars
-    % MVC = 1;
-    % 
-    % PsychDefaultSetup(2);screen=max(Screen('Screens'));
-    % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-    % HideCursor(window);
+%     Here, we are getting the subject to associate the amount of force
+%     he/she exerts, and a number presented to them on the screen.
+%     
+%     For running only this phase
+%     Dummy Vars
+%     MVC = 1;
+% 
+%     PsychDefaultSetup(2);screen=max(Screen('Screens'));
+%     [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+%     HideCursor(window);
 
     TextScreen(window,'Phase 2: Please wait for instructions',[1 1 1],'key');
     TextScreen(window,'Get Ready',[1 1 1],1.5);
@@ -93,12 +98,11 @@ try
     PercentMVClevelshuffle = PercentMVClevels(randperm(numel(PercentMVClevels)));
     AssocTrial = repmat(PercentMVClevelshuffle,[numAssocTrials 1]);
     AssocTrial = AssocTrial(:);
-    % ^40x1 representing each individual trial
     voltAssocTrial = NaN(numel(AssocTrial),time*freq);
     % ^rows-trial#, columns-voltages
     timingAssocTrial = NaN(numel(AssocTrial),time*freq);
     % ^timings associated with voltages
-
+    outcomeAssocTrial = NaN(numel(AssocTrial),1);
     count = 0;
     count_1 = 0;
     for i = AssocTrial'
@@ -108,30 +112,35 @@ try
         [outcome,volt,timing] = ThermScreen(window,baseline,MVC,i/100,0.05,'vertical',time);
         voltAssocTrial(count,:) = volt;
         timingAssocTrial(count,:) = timing;
+        outcomeAssocTrial(count) = outcome;
         if outcome == 1
             TextScreen(window,'Success',[0 1 0],2);
         elseif outcome == 0
             TextScreen(window,'Failure',[1 0 0],2);
-        FixationCross(window,1+3*rand);
         end
+        FixationCross(window,1+3*rand);
         while count_1 == numAssocTrials
             TextScreen(window,'Rest',[1 1 1],60);
             count_1 = 0;
         end
     end
-
+    
+    AssocTrial = [AssocTrial outcomeAssocTrial];
+    % ^40x2 representing each individual trial and their outcomes
     TextScreen(window,'End of Phase 2',[1 1 1],'key');
 
     %% PHASE 3: RECALL---------------------------------------------------------
-
-    % For running only this phase
-
-    % Dummy Vars
-    % MVC = 1;
-
-    % PsychDefaultSetup(2);screen=max(Screen('Screens'));
-    % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-    % HideCursor(window);
+%     Here, we test to see if the subject has associated the numbers with
+%     the force exerted.
+%     
+%     For running only this phase
+% 
+%     Dummy Vars
+%     MVC = 1;
+% 
+%     PsychDefaultSetup(2);screen=max(Screen('Screens'));
+%     [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+%     HideCurFatiguedChoiceTrialsor(window);
 
     TextScreen(window,'Phase 3: Please wait for instructions',[1 1 1],'key');
     TextScreen(window,'Get Ready',[1 1 1],1.5);
@@ -146,35 +155,41 @@ try
     reportRecallTrial = NaN(numel(PercentMVClevels_3),1);
     reacttimeRecallTrial = NaN(numel(PercentMVClevels_3),1);
     timingRecallTrial = NaN(numel(PercentMVClevels_3),time*freq);
+    outcomeRecallTrial = NaN(numel(PercentMVClevels_3),1);
     count = 0;
     for i = PercentMVClevels_3_shuffle
         count = count+1;
-        [~,volt,timing] = ThermScreen(window,baseline,MVC,i/100,0.05,'horizontal',time);
+        [outcome,volt,timing] = ThermScreen(window,baseline,MVC,i/100,0.05,'horizontal',time);
         voltRecallTrial(count,:) = volt;
         timingRecallTrial(count,:) = timing;
+        outcomeRecallTrial(count) = outcome;
         [EffortReport,ReactTime] = NumberLineScreen(window);
         reportRecallTrial(count) = EffortReport;
         reacttimeRecallTrial(count) = ReactTime;
     end
 
     RecallTrial = [PercentMVClevels_3_shuffle' reportRecallTrial ... 
-        reacttimeRecallTrial];
+        reacttimeRecallTrial outcomeRecallTrial];
     % ^rows-recall trial#, column1-actual MVC percentage, column2-reported MVC
-    % percentage, column3-reaction time
-
+    % percentage, column3-reaction time, column4-success or failure of
+    % trial
+    
     TextScreen(window,'Rest',[1 1 1],60);
 
     TextScreen(window,'End of Phase 3',[1 1 1],'key');
 
     %% PHASE 4: CHOICE---------------------------------------------------------
-
-    % For running only this phase
-    % Dummy Vars
-    % MVC = 1;
-
-    % PsychDefaultSetup(2);screen=max(Screen('Screens'));
-    % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-    % HideCursor(window);
+%     Here, we have the subjects choose between an effort gamble and a sure
+%     value in order to get their inherent risk preferences in the effort
+%     domain.
+%     
+%     For running only this phase
+%     Dummy Vars
+%     MVC = 1;
+% 
+%     PsychDefaultSetup(2);screen=max(Screen('Screens'));
+%     [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+%     HideCursor(window);
 
     TextScreen(window,'Phase 4: Please wait for instructions',[1 1 1],'key');
     TextScreen(window,'Get Ready',[1 1 1],1.5);
@@ -204,16 +219,20 @@ try
     TextScreen(window,'End of Phase 4',[1 1 1],'key');
 
     %% PHASE 5: FATIGUED CHOICE------------------------------------------------
-
-    % For running only this phase
-
-    % Dummy Vars
-    % MVC = 1;
-    
+%     Here, we have the subjects make the same choices they made in phase
+%     4, but now they are bein kept at a consistent level of motor fatigue,
+%     achieved by doing repetitive squeeze tasks in between their choice 
+%     inputs.
+%     
+%     For running only this phase
+% 
+%     Dummy Vars
+%     MVC = 1;
+%     
 %     PsychDefaultSetup(2);screen=max(Screen('Screens'));
 %     [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
 %     HideCursor(window);
-
+% 
 %     load('C:\Users\Steven\Documents\MATLAB\FatigueCode\Gambles_12_5.mat');
 %     gambles = Gambles_12_5;
 %     [r,~] = size(gambles);
@@ -231,9 +250,9 @@ try
     numFatiguedChoiceTrials = r;
     choiceFatiguedChoiceTrial = NaN(numFatiguedChoiceTrials,1);
     reacttimeFatiguedChoiceTrial = NaN(numFatiguedChoiceTrials,1);
-    voltFatiguedChoiceTrial = NaN(100,time*freq,numFatigueTrials);
-    timingFatiguedChoiceTrial = NaN(100,time*freq,numFatigueTrials);
-    outcomeFatiguedChoiceTrial = NaN(numFatigueTrials,100);
+    voltFatiguedChoiceTrial = NaN(300,time*freq,numFatigueTrials);
+    timingFatiguedChoiceTrial = NaN(300,time*freq,numFatigueTrials);
+    outcomeFatiguedChoiceTrial = NaN(numFatigueTrials,300);
     
     for i = 1:numFatigueTrials
         success = 0;
@@ -248,11 +267,11 @@ try
         TextScreen(window,'Squeeze Phase',[1 1 1],2);
         TextScreen(window,'Get Ready',[1 1 1],1.5);
         % min reps
-        for i = 1:minFatigueReps
+        for j = 1:minFatigueReps
             [outcome,volt,timing] = ThermScreen(window,baseline,MVC,MVCFatiguePercent/100,0.05,'horizontal',time);
-            voltFatiguedChoiceTrial(i,:,i) = volt;
-            timingFatiguedChoiceTrial(i,:,i) = timing;
-            outcomeFatiguedChoiceTrial(i,i) = outcome;
+            voltFatiguedChoiceTrial(j,:,i) = volt;
+            timingFatiguedChoiceTrial(j,:,i) = timing;
+            outcomeFatiguedChoiceTrial(i,j) = outcome;
             if outcome == 1
                 success = success+1;
             elseif outcome == 0
@@ -261,13 +280,13 @@ try
             FixationCross(window,3);
         end
         % until failure threshold
-        i = minFatigueReps;
+        j = minFatigueReps;
         while success/failure > (100-FailureThreshold)/FailureThreshold
-            i = i+1;
+            j = j+1;
             [outcome,volt,timing] = ThermScreen(window,baseline,MVC,MVCFatiguePercent/100,0.05,'horizontal',time);
-            voltFatiguedChoiceTrial(i,:,i) = volt;
-            timingFatiguedChoiceTrial(i,:,i) = timing;
-            outcomeFatiguedChoiceTrial(i,i) = outcome;
+            voltFatiguedChoiceTrial(j,:,i) = volt;
+            timingFatiguedChoiceTrial(j,:,i) = timing;
+            outcomeFatiguedChoiceTrial(i,j) = outcome;
             if outcome == 1
                 success = success+1;
             elseif outcome == 0
@@ -281,13 +300,13 @@ try
         TextScreen(window,'Get Ready',[1 1 1],1.5);
         ChoiceLeftIndex = (i-1)*numChoicesPerTrial+1;
         ChoiceRightIndex = i*numChoicesPerTrial;
-        for j = ChoiceLeftIndex:ChoiceRightIndex
-            flip = gambleShuffled_1(j,2);
-            sure = gambleShuffled_1(j,1);
+        for k = ChoiceLeftIndex:ChoiceRightIndex
+            flip = gambleShuffled_1(k,2);
+            sure = gambleShuffled_1(k,1);
             [choice,ReactTime] = GambleScreen(window,flip,sure,4);
             FixationCross(window,1+3*rand);
-            choiceFatiguedChoiceTrial(j) = choice; %NOTE: 1 = flip, 0 = sure
-            reacttimeFatiguedChoiceTrial(j) = ReactTime;
+            choiceFatiguedChoiceTrial(k) = choice; %NOTE: 1 = flip, 0 = sure
+            reacttimeFatiguedChoiceTrial(k) = ReactTime;
         end
     end
 
@@ -299,21 +318,25 @@ try
     TextScreen(window,'End of Phase 5',[1 1 1],'key');
 
     %% PHASE 6: TRIAL SELECTION------------------------------------------------
-
-    % For running only this phase
-
-    % Dummy Vars
-    % MVC = 1;
-
-    PsychDefaultSetup(2);screen=max(Screen('Screens'));
-    [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-    HideCursor(window);
-    
-    % load('C:\Users\Steven\Documents\MATLAB\FatigueCode\Gambles_12_5.mat');
-    % gambles = Gambles_12_5;
-    % [r,~] = size(gambles);
-    % gambleShuffled = gambles(randperm(r),:);
-    % gambleShuffled_1 = gambles(randperm(r),:);
+%     Here, we play out 10 of the choices that were made in the previous 2
+%     phases, in order to validate that the subject is treating each
+%     choice made in the previous phases independently from one another,
+%     and with potential consequences.
+%     
+%     For running only this phase
+% 
+%     Dummy Vars
+%     MVC = 1;
+% 
+%     PsychDefaultSetup(2);screen=max(Screen('Screens'));
+%     [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+%     HideCursor(window);
+%     
+%     load('C:\Users\Steven\Documents\MATLAB\FatigueCode\Gambles_12_5.mat');
+%     gambles = Gambles_12_5;
+%     [r,~] = size(gambles);
+%     gambleShuffled = gambles(randperm(r),:);
+%     gambleShuffled_1 = gambles(randperm(r),:);
 
     TextScreen(window,'Phase 6: Please wait for instructions',[1 1 1],'key');
     TextScreen(window,'Get Ready',[1 1 1],1.5);
@@ -325,6 +348,9 @@ try
     TrialSelectionTrial = NaN(10,1);
     count = 0;
     for i = randperm(length(CombinedTrial),10)
+        while isnan(CombinedTrial(i,3)) == 1
+            i = randperm(length(CombinedTrial),1);
+        end
         count = count+1;
         if CombinedTrial(i,3) == 1 %Random seed to determine 0 or flip value
             seed = rand;
@@ -337,7 +363,7 @@ try
             TrialSelectionTrial(count) = CombinedTrial(i,1);
         end
     end
-
+    
     % Play Out Gambles (1 success or 5 fails per gamble)
     voltTrialSelectionTrial = NaN(5,time*freq,10);
     timingTrialSelectionTrial = NaN(5,time*freq,10);
