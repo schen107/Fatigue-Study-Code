@@ -58,7 +58,7 @@ try
     TextScreen(window,'Get Ready',[1 1 1],1.5);
 
     time = 4;
-    freq = 2000;
+    freq = 60;
     numMVCTrials = 3; %3
     voltMVCTrial = NaN(numMVCTrials,time*freq);
     timingMVCTrial = NaN(numMVCTrials,time*freq);
@@ -92,7 +92,7 @@ try
     TextScreen(window,'Get Ready',[1 1 1],1.5);
 
     time = 4;
-    freq = 2000;
+    freq = 60;
     numAssocTrials = 5; %5
     PercentMVClevels = [10 20 30 40 50 60 70 80];
     PercentMVClevelshuffle = PercentMVClevels(randperm(numel(PercentMVClevels)));
@@ -146,7 +146,7 @@ try
     TextScreen(window,'Get Ready',[1 1 1],1.5);
 
     time = 4;
-    freq = 2000;
+    freq = 60;
     numRecallTrials = 3; %3
     PercentMVClevels = [10 20 30 40 50 60 70 80];
     PercentMVClevels_3 = repmat(PercentMVClevels,[numRecallTrials,1]);
@@ -241,7 +241,7 @@ try
     TextScreen(window,'Phase 5: Please wait for instructions',[1 1 1],'key');
     
     time = 4;
-    freq = 2000;
+    freq = 60;
     gambleShuffled_1 = gambles(randperm(r),:);
     MVCFatiguePercent = 80; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     FailureThreshold = 75; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -342,7 +342,7 @@ try
     TextScreen(window,'Get Ready',[1 1 1],1.5);
 
     time = 4;
-    freq = 2000;
+    freq = 60;
     % Randomly select 10 choice trials from pre/post fatigue
     CombinedTrial = [ChoiceTrial; FatiguedChoiceTrial];
     TrialSelectionTrial = NaN(10,1);
