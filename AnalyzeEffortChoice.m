@@ -6,11 +6,16 @@ clc;clear;
 
 rootpath = 'C:\Users\Steven\Documents\FatigueStudy\Data\Pilot Data';
 
-SubjectID={...
+SubjectID = {...
     'KM_72015'...
     'SM_71515'...
     'JH_71515'...
     'RL_71415'...
+    'ND_72115'...
+    'FO_72115'...
+    'SG_72215'...
+    'AG_72215'...
+%     'patricktest_71715'...
     };
 
 % Bs = [];
@@ -22,9 +27,9 @@ for i = 1:size(SubjectID,2)
     %Column 1 -- Sure
     %Column 2 -- Flip
 %--------------------------------------------------------------------------
-    SubjectDir = fullfile(rootpath,SubjectID(i));
-    load(fullfile(char(SubjectDir),'ChoicePhase'));
-    load(fullfile(char(SubjectDir),'FatiguedChoicePhase'));
+    SubjectDir = char(fullfile(rootpath,SubjectID(i)));
+    load(fullfile(SubjectDir,'ChoicePhase'));
+    load(fullfile(SubjectDir,'FatiguedChoicePhase'));
     
     PrefatGambles = ChoiceTrial(:,1:3);
     PostfatGambles = FatiguedChoiceTrial(:,1:3);
@@ -48,6 +53,10 @@ for i = 1:size(SubjectID,2)
     
     [~,index]=sort(PostfatGambles(:,1));
     PostfatGambles = PostfatGambles(index,:);
+    
+    PrefatGambles(isnan(PrefatGambles(:,4)),:) = [];
+    PostfatGambles(isnan(PostfatGambles(:,4)),:) = [];
+    %^^ get rid of NANs
     
     %GLM ON CHOICE DATA [Separate betas for gamble and sure vals]
 %--------------------------------------------------------------------------
@@ -89,6 +98,12 @@ for i = 1:size(SubjectID,2)
     %subjective effort preferences (temperature parameter being the first
     %column and curvature parameter being the second).
     
+    %Save resulting parameters
+    parameters = zeros(2,2);
+    parameters(1,:) = paramtracker1(i,:);
+    parameters(2,:) = paramtracker2(i,:);
+    save(fullfile(SubjectDir,'parameters'),'parameters');
+    
 %--------------------------------------------------------------------------
 end
 
@@ -102,10 +117,3 @@ Pvals1 = 1-chi2cdf(D1,1);
 Pvals2 = 1-chi2cdf(D2,1);
 PvalsCompare = 1-chi2cdf(DCompare,1);
 %^THIS IS RIGHT. Obtain p-values for these observations.
-
-%--------------------------------------------------------------------------
-% %SAVE RESULTING CURVATURE PARAMETERS
-% rho=cell(2,1);
-% rho{1}=subjects;
-% rho{2}=paramtracker(:,2);
-% save(['Y:\Analysis\curvature_parms1.mat'],'rho');
