@@ -2,7 +2,7 @@
 % Created by Steven Chen
 
 clear; clc;
-global DAR
+% global DAR
 
 try
     %% General Setup-------------------------------------------------------
@@ -13,7 +13,7 @@ try
     %% Setup Subject Data--------------------------------------------------
     rootpath = 'C:\Users\Steven\Documents\FatigueStudy\Data';
     SubjectID=input('Enter Subject Identifier: ','s');
-    FolderName = 'Pilot Data'; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    FolderName = 'Pilot Data - 2'; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     SubjectDir = fullfile(rootpath,FolderName,SubjectID);
     mkdir(SubjectDir);
     FileName = fullfile(SubjectDir,SubjectID);
@@ -28,20 +28,20 @@ try
 %     Dummy
 %     sensor = 1;
 %     Old DAQ
-%     sensor = analoginput('mcc'); %Default sample rate: 1000
-%     chans=addchannel(sensor,0);
-%     start(sensor);
-%     TextScreen(window,'Calibrating - Dont touch the sensor!',[1 1 1],5);
-%     Pausing to be sure that the sensor has time to equilibriate
-%     baseline = getsample(sensor);
-% 
-%     New DAQ
-    time = 5;
-    freq = 2000;
-    startCollect(time,freq);
-
+    sensor = analoginput('mcc'); %Default sample rate: 1000
+    chans=addchannel(sensor,0);
+    start(sensor);
     TextScreen(window,'Calibrating - Dont touch the sensor!',[1 1 1],5);
-    baseline = mode(DAR(2,:));
+    %Pausing to be sure that the sensor has time to equilibriate
+    baseline = getsample(sensor);
+
+%     New DAQ
+%     time = 5;
+%     freq = 2000;
+%     startCollect(time,freq);
+% 
+%     TextScreen(window,'Calibrating - Dont touch the sensor!',[1 1 1],5);
+%     baseline = mode(DAR(2,:));
 
     %% PHASE 1: MAXIMUM VOLUNTARY CONTRACTION----------------------------------
 %     Here we are testing the subject's MVC, and using that value to
@@ -63,7 +63,7 @@ try
     voltMVCTrial = NaN(numMVCTrials,time*freq);
     timingMVCTrial = NaN(numMVCTrials,time*freq);
     for i = 1:numMVCTrials
-        [~,volt,timing] = TextScreen(window,'Squeeze!',[1 1 1],time,'DAQ',baseline);
+        [~,volt,timing] = TextScreen(window,'Squeeze!',[1 1 1],time,sensor,baseline);
         timingMVCTrial(i,:) = timing;
         voltMVCTrial(i,:) = volt;
         FixationCross(window,1+3*rand) %random duration btwn 1-4 sec
@@ -109,7 +109,7 @@ try
         count = count+1;
         count_1 = count_1+1;
         TextScreen(window,num2str(i),[1 1 1],2);
-        [outcome,volt,timing] = ThermScreen(window,baseline,MVC,i/100,0.05,'vertical',time);
+        [outcome,volt,timing] = ThermScreen(window,sensor,baseline,MVC,i/100,0.05,'vertical',time);
         voltAssocTrial(count,:) = volt;
         timingAssocTrial(count,:) = timing;
         outcomeAssocTrial(count) = outcome;
@@ -159,7 +159,7 @@ try
     count = 0;
     for i = PercentMVClevels_3_shuffle
         count = count+1;
-        [outcome,volt,timing] = ThermScreen(window,baseline,MVC,i/100,0.05,'horizontal',time);
+        [outcome,volt,timing] = ThermScreen(window,sensor,baseline,MVC,i/100,0.05,'horizontal',time);
         voltRecallTrial(count,:) = volt;
         timingRecallTrial(count,:) = timing;
         outcomeRecallTrial(count) = outcome;
@@ -268,7 +268,7 @@ try
         TextScreen(window,'Get Ready',[1 1 1],1.5);
         % min reps
         for j = 1:minFatigueReps
-            [outcome,volt,timing] = ThermScreen(window,baseline,MVC,MVCFatiguePercent/100,0.05,'horizontal',time);
+            [outcome,volt,timing] = ThermScreen(window,sensor,baseline,MVC,MVCFatiguePercent/100,0.05,'horizontal',time);
             voltFatiguedChoiceTrial(j,:,i) = volt;
             timingFatiguedChoiceTrial(j,:,i) = timing;
             outcomeFatiguedChoiceTrial(i,j) = outcome;
@@ -283,7 +283,7 @@ try
         j = minFatigueReps;
         while success/failure > (100-FailureThreshold)/FailureThreshold
             j = j+1;
-            [outcome,volt,timing] = ThermScreen(window,baseline,MVC,MVCFatiguePercent/100,0.05,'horizontal',time);
+            [outcome,volt,timing] = ThermScreen(window,sensor,baseline,MVC,MVCFatiguePercent/100,0.05,'horizontal',time);
             voltFatiguedChoiceTrial(j,:,i) = volt;
             timingFatiguedChoiceTrial(j,:,i) = timing;
             outcomeFatiguedChoiceTrial(i,j) = outcome;
@@ -372,7 +372,7 @@ try
         FailCount = 0;
         lever = 0;
         while lever == 0 && FailCount < 5
-            [outcome,volt,timing] = ThermScreen(window,baseline,MVC,TrialSelectionTrial(i)/100,0.05,'horizontal',4);
+            [outcome,volt,timing] = ThermScreen(window,sensor,baseline,MVC,TrialSelectionTrial(i)/100,0.05,'horizontal',4);
             voltTrialSelectionTrial(FailCount+1,:,i) = volt;
             timingTrialSelectionTrial(FailCount+1,:,i) = timing;
             if outcome == 1
