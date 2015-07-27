@@ -7,11 +7,13 @@ clear; clc;
 try
     %% General Setup-------------------------------------------------------
     rng('shuffle'); %Generate new random seed
-    addpath('C:\Users\Steven\Documents\MATLAB\FatigueCode\DAQ functions');
-    addpath('C:\Users\Steven\Documents\MATLAB\FatigueCode\Components');
+%     addpath('C:\Users\Steven\Documents\MATLAB\FatigueCode\DAQ functions');
+%     addpath('C:\Users\Steven\Documents\MATLAB\FatigueCode\Components');
+    addpath('Y:\fatigue-code\Components');
     
     %% Setup Subject Data--------------------------------------------------
-    rootpath = 'C:\Users\Steven\Documents\FatigueStudy\Data';
+%     rootpath = 'C:\Users\Steven\Documents\FatigueStudy\Data'; %Steven's Comp
+    rootpath = 'Y:\Fatigue Experiment'; %KKI Comp
     SubjectID=input('Enter Subject Identifier: ','s');
     FolderName = 'Pilot Data - 2'; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     SubjectDir = fullfile(rootpath,FolderName,SubjectID);
@@ -138,9 +140,9 @@ try
 %     Dummy Vars
 %     MVC = 1;
 % 
-%     PsychDefaultSetup(2);screen=max(Screen('Screens'));
-%     [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-%     HideCurFatiguedChoiceTrialsor(window);
+    PsychDefaultSetup(2);screen=max(Screen('Screens'));
+    [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+    HideCursor(window);
 
     TextScreen(window,'Phase 3: Please wait for instructions',[1 1 1],'key');
     TextScreen(window,'Get Ready',[1 1 1],1.5);
@@ -154,6 +156,7 @@ try
     reacttimeRecallTrial = NaN(8*numRecallTrials*numTrialReps,1);
     timingRecallTrial = NaN(8*numRecallTrials*numTrialReps,time*freq);
     outcomeRecallTrial = NaN(8*numRecallTrials*numTrialReps,1);
+    PercentMVClevels_6_shuffle = NaN(8*numRecallTrials*numTrialReps,1);
     count = 0;
     for i = 1:numTrialReps
         PercentMVClevels = [10 20 30 40 50 60 70 80];
@@ -168,11 +171,12 @@ try
             [EffortReport,ReactTime] = NumberLineScreen(window);
             reportRecallTrial(count) = EffortReport;
             reacttimeRecallTrial(count) = ReactTime;
-            TextScreen(window,'Rest',[1 1 1],60);
+            PercentMVClevels_6_shuffle(count) = j;
         end
+        TextScreen(window,'Rest',[1 1 1],60);
     end
 
-    RecallTrial = [PercentMVClevels_3_shuffle' reportRecallTrial ... 
+    RecallTrial = [PercentMVClevels_6_shuffle reportRecallTrial ... 
         reacttimeRecallTrial outcomeRecallTrial];
     % ^rows-recall trial#, column1-actual MVC percentage, column2-reported MVC
     % percentage, column3-reaction time, column4-success or failure of
