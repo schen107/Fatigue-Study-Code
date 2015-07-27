@@ -43,7 +43,7 @@ try
 %     TextScreen(window,'Calibrating - Dont touch the sensor!',[1 1 1],5);
 %     baseline = mode(DAR(2,:));
 
-    %% PHASE 1: MAXIMUM VOLUNTARY CONTRACTION----------------------------------
+    %% PHASE 1: MAXIMUM VOLUNTARY CONTRACTION------------------------------
 %     Here we are testing the subject's MVC, and using that value to
 %     normalize the forces exerted in the subsequent parts of the
 %     experiment.
@@ -76,7 +76,7 @@ try
 
     TextScreen(window,'End of Phase 1',[1 1 1],'key');
 
-    %% PHASE 2: ASSOCIATION----------------------------------------------------
+    %% PHASE 2: ASSOCIATION------------------------------------------------
 %     Here, we are getting the subject to associate the amount of force
 %     he/she exerts, and a number presented to them on the screen.
 %     
@@ -129,7 +129,7 @@ try
     % ^40x2 representing each individual trial and their outcomes
     TextScreen(window,'End of Phase 2',[1 1 1],'key');
 
-    %% PHASE 3: RECALL---------------------------------------------------------
+    %% PHASE 3: RECALL-----------------------------------------------------
 %     Here, we test to see if the subject has associated the numbers with
 %     the force exerted.
 %     
@@ -147,25 +147,29 @@ try
 
     time = 4;
     freq = 60;
+    numTrialReps = 2; %2
     numRecallTrials = 3; %3
-    PercentMVClevels = [10 20 30 40 50 60 70 80];
-    PercentMVClevels_3 = repmat(PercentMVClevels,[numRecallTrials,1]);
-    PercentMVClevels_3_shuffle = PercentMVClevels_3(randperm(numel(PercentMVClevels_3)));
-    voltRecallTrial = NaN(numel(PercentMVClevels_3),time*freq);
-    reportRecallTrial = NaN(numel(PercentMVClevels_3),1);
-    reacttimeRecallTrial = NaN(numel(PercentMVClevels_3),1);
-    timingRecallTrial = NaN(numel(PercentMVClevels_3),time*freq);
-    outcomeRecallTrial = NaN(numel(PercentMVClevels_3),1);
+    voltRecallTrial = NaN(8*numRecallTrials*numTrialReps,time*freq);
+    reportRecallTrial = NaN(8*numRecallTrials*numTrialReps,1);
+    reacttimeRecallTrial = NaN(8*numRecallTrials*numTrialReps,1);
+    timingRecallTrial = NaN(8*numRecallTrials*numTrialReps,time*freq);
+    outcomeRecallTrial = NaN(8*numRecallTrials*numTrialReps,1);
     count = 0;
-    for i = PercentMVClevels_3_shuffle
-        count = count+1;
-        [outcome,volt,timing] = ThermScreen(window,sensor,baseline,MVC,i/100,0.05,'horizontal',time);
-        voltRecallTrial(count,:) = volt;
-        timingRecallTrial(count,:) = timing;
-        outcomeRecallTrial(count) = outcome;
-        [EffortReport,ReactTime] = NumberLineScreen(window);
-        reportRecallTrial(count) = EffortReport;
-        reacttimeRecallTrial(count) = ReactTime;
+    for i = 1:numTrialReps
+        PercentMVClevels = [10 20 30 40 50 60 70 80];
+        PercentMVClevels_3 = repmat(PercentMVClevels,[numRecallTrials,1]);
+        PercentMVClevels_3_shuffle = PercentMVClevels_3(randperm(numel(PercentMVClevels_3)));
+        for j = PercentMVClevels_3_shuffle
+            count = count+1;
+            [outcome,volt,timing] = ThermScreen(window,sensor,baseline,MVC,j/100,0.05,'horizontal',time);
+            voltRecallTrial(count,:) = volt;
+            timingRecallTrial(count,:) = timing;
+            outcomeRecallTrial(count) = outcome;
+            [EffortReport,ReactTime] = NumberLineScreen(window);
+            reportRecallTrial(count) = EffortReport;
+            reacttimeRecallTrial(count) = ReactTime;
+            TextScreen(window,'Rest',[1 1 1],60);
+        end
     end
 
     RecallTrial = [PercentMVClevels_3_shuffle' reportRecallTrial ... 
@@ -173,12 +177,10 @@ try
     % ^rows-recall trial#, column1-actual MVC percentage, column2-reported MVC
     % percentage, column3-reaction time, column4-success or failure of
     % trial
-    
-    TextScreen(window,'Rest',[1 1 1],60);
 
     TextScreen(window,'End of Phase 3',[1 1 1],'key');
 
-    %% PHASE 4: CHOICE---------------------------------------------------------
+    %% PHASE 4: CHOICE-----------------------------------------------------
 %     Here, we have the subjects choose between an effort gamble and a sure
 %     value in order to get their inherent risk preferences in the effort
 %     domain.
@@ -218,7 +220,7 @@ try
 
     TextScreen(window,'End of Phase 4',[1 1 1],'key');
 
-    %% PHASE 5: FATIGUED CHOICE------------------------------------------------
+    %% PHASE 5: FATIGUED CHOICE--------------------------------------------
 %     Here, we have the subjects make the same choices they made in phase
 %     4, but now they are bein kept at a consistent level of motor fatigue,
 %     achieved by doing repetitive squeeze tasks in between their choice 
@@ -317,7 +319,7 @@ try
 
     TextScreen(window,'End of Phase 5',[1 1 1],'key');
 
-    %% PHASE 6: TRIAL SELECTION------------------------------------------------
+    %% PHASE 6: TRIAL SELECTION--------------------------------------------
 %     Here, we play out 10 of the choices that were made in the previous 2
 %     phases, in order to validate that the subject is treating each
 %     choice made in the previous phases independently from one another,
