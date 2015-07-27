@@ -140,12 +140,11 @@ try
 %     Dummy Vars
 %     MVC = 1;
 % 
-    PsychDefaultSetup(2);screen=max(Screen('Screens'));
-    [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-    HideCursor(window);
+%     PsychDefaultSetup(2);screen=max(Screen('Screens'));
+%     [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+%     HideCursor(window);
 
     TextScreen(window,'Phase 3: Please wait for instructions',[1 1 1],'key');
-    TextScreen(window,'Get Ready',[1 1 1],1.5);
 
     time = 4;
     freq = 60;
@@ -159,6 +158,7 @@ try
     PercentMVClevels_6_shuffle = NaN(8*numRecallTrials*numTrialReps,1);
     count = 0;
     for i = 1:numTrialReps
+        TextScreen(window,'Get Ready',[1 1 1],1.5);
         PercentMVClevels = [10 20 30 40 50 60 70 80];
         PercentMVClevels_3 = repmat(PercentMVClevels,[numRecallTrials,1]);
         PercentMVClevels_3_shuffle = PercentMVClevels_3(randperm(numel(PercentMVClevels_3)));
