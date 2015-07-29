@@ -200,7 +200,8 @@ try
     TextScreen(window,'Phase 4: Please wait for instructions',[1 1 1],'key');
     TextScreen(window,'Get Ready',[1 1 1],1.5);
 
-    load('C:\Users\Steven\Documents\MATLAB\FatigueCode\Gambles_12_5.mat');
+%     load('C:\Users\Steven\Documents\MATLAB\FatigueCode\Gambles_12_5.mat');
+    load('Y:\fatigue-code\Gambles_12_5.mat');
     gambles = Gambles_12_5;
     [r,~] = size(gambles);
     gambleShuffled = gambles(randperm(r),:);
