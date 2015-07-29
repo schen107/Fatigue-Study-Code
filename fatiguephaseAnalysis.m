@@ -1,6 +1,8 @@
 clear; clc
 
-rootpath = 'C:\Users\Steven\Documents\FatigueStudy\Data\Pilot Data';
+% rootpath = 'C:\Users\Steven\Documents\FatigueStudy\Data\Pilot Data - 2'; %Steven's Comp
+rootpath = 'Y:\Fatigue Experiment\Pilot Data - 2'; %KKI Comp
+
 SubjectID=input('Enter Subject Identifier: ','s'); 
 SubjectDir = fullfile(rootpath,SubjectID);
 load(fullfile(SubjectDir,'MVCPhase'));
