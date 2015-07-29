@@ -34,12 +34,17 @@ for i = 1:size(SubjectID,2)
     SubjectDir = char(fullfile(rootpath,SubjectID(i)));
     load(fullfile(SubjectDir,'RecallPhase'));
     
+    SumSquaredError = sum((RecallTrial(:,2)-RecallTrial(:,1)).^2);
+    SampMean = mean(RecallTrial(:,2));
+    SumSquaredMeanError = sum((RecallTrial(:,2)-SampMean).^2);
+    rsquared = 1 - SumSquaredError/SumSquaredMeanError;
+    
     figure(i);
     hold on;
     scatter(RecallTrial(:,1),RecallTrial(:,2),'*');
-    line = linspace(0,90,100);
+    line = linspace(0,100,100);
     plot(line,line);
-    axis([0 90 0 90]);
-    
+    text(70,10,strjoin({'R^2 =',num2str(rsquared)}));
+    axis([0 100 0 100]);
 end
 
