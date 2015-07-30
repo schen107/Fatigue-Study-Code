@@ -13,7 +13,7 @@ try
     %% Setup Subject Data--------------------------------------------------
     rootpath = 'Z:\Fatigue Experiment\Data';
     SubjectID=input('Enter Subject Identifier: ','s');
-    FolderName = 'Pilot Data - 3'; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    FolderName = 'Pilot - 3'; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     SubjectDir = fullfile(rootpath,FolderName,SubjectID);
     mkdir(SubjectDir);
     FileName = fullfile(SubjectDir,SubjectID);

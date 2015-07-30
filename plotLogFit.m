@@ -1,14 +1,14 @@
 close;clear;clc;
 
-% rootpath = 'C:\Users\Steven\Documents\FatigueStudy\Data\Pilot Data - 2'; %Steven's Comp
-rootpath = 'Y:\Fatigue Experiment\Pilot Data - 2'; %KKI Comp
+rootpath = 'Z:\Fatigue Experiment\Data';
+FolderName = 'Pilot - 3'; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 subjects = 1; %1 - multiple subjects, 0 - one subject;
 saveit = 1; %1 - save plot with logistic fits and choice data for pre and post fatigue
 
 if subjects == 1
     SubjectID = {...
-%         Pilot Data
+%         Pilot
 %         'KM_72015'...
 %         'SM_71515'...
 %         'JH_71515'...
@@ -18,18 +18,18 @@ if subjects == 1
 %         'SG_72215'...
 %         'AG_72215'...
 
-%         Pilot Data - 2
-        'AE_72915'...
-        'CA_73015'...
-        'JB_73015'...
-        'SU_72915'...
+%         Pilot - 2
+%         'AE_72915'...
+%         'CA_73015'...
+%         'JB_73015'...
+%         'SU_72915'...
         };
 elseif subjects == 0
     SubjectID = input('Enter Subject Identifier: ','s'); 
 end
 
 for i = 1:length(SubjectID)
-    SubjectDir = char(fullfile(rootpath,SubjectID(i)));
+    SubjectDir = char(fullfile(rootpath,FolderName,SubjectID(i)));
     load(fullfile(SubjectDir,'ChoicePhase'));
     load(fullfile(SubjectDir,'FatiguedChoicePhase'));
     load(fullfile(SubjectDir,'parameters'));
@@ -61,6 +61,7 @@ for i = 1:length(SubjectID)
     
     %plotting pre and post-fatigue choice data and logistic functions
     figure(i);
+    set(gcf,'name',char(SubjectID(i)),'numbertitle','off')
     xmin = 1.1*min(min(PrefatGambles(:,1)),min(PostfatGambles(:,1)));
     xmax = 1.1*max(max(PrefatGambles(:,1)),max(PostfatGambles(:,1)));
     axis([xmin xmax 0 1])

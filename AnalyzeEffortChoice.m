@@ -4,15 +4,15 @@
 
 clc;clear;
 
-% rootpath = 'C:\Users\Steven\Documents\FatigueStudy\Data\Pilot Data - 2'; %Steven's Comp
-rootpath = 'Y:\Fatigue Experiment\Pilot Data - 2'; %KKI Comp
+rootpath = 'Z:\Fatigue Experiment\Data';
+FolderName = 'Pilot - 3'; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 subjects = 1; %1 - multiple subjects, 0 - one subject;
 saveit = 1; %1 - save parameter values
 
 if subjects == 1
     SubjectID = {...
-%         Pilot Data
+%         Pilot
 %         'KM_72015'...
 %         'SM_71515'...
 %         'JH_71515'...
@@ -22,11 +22,11 @@ if subjects == 1
 %         'SG_72215'...
 %         'AG_72215'...
 
-%         Pilot Data - 2
-        'AE_72915'...
-        'CA_73015'...
-        'JB_73015'...
-        'SU_72915'...
+%         Pilot - 2
+%         'AE_72915'...
+%         'CA_73015'...
+%         'JB_73015'...
+%         'SU_72915'...
         };
 elseif subjects == 0
     SubjectID = input('Enter Subject Identifier: ','s'); 
@@ -37,7 +37,7 @@ for i = 1:length(SubjectID)
     %Column 1 -- Sure
     %Column 2 -- Flip
 %--------------------------------------------------------------------------
-    SubjectDir = char(fullfile(rootpath,SubjectID(i)));
+    SubjectDir = char(fullfile(rootpath,FolderName,SubjectID(i)));
     load(fullfile(SubjectDir,'ChoicePhase'));
     load(fullfile(SubjectDir,'FatiguedChoicePhase'));
     
@@ -72,9 +72,8 @@ for i = 1:length(SubjectID)
     P2 = PostfatGambles(:,2:4);
     
     options = optimset('MaxFunEvals', 100000);
-    
-%     addpath('C:\Users\Steven\Documents\MATLAB\FatigueCode\Analysis Code');
-    addpath('Y:\fatigue-code\Analysis Code');
+
+    addpath('Z:\Fatigue Experiment\Code\Analysis Functions');
     
     paramtracker1(i,:) = fminsearch(@loglikelihood_rhomulam_effort,[.1 1],options, P1);
     lltracker1(1,i) = (loglikelihood_rhomulam_effort(paramtracker1(i,:),P1));
