@@ -7,24 +7,32 @@ clc;clear;
 % rootpath = 'C:\Users\Steven\Documents\FatigueStudy\Data\Pilot Data - 2'; %Steven's Comp
 rootpath = 'Y:\Fatigue Experiment\Pilot Data - 2'; %KKI Comp
 
-SubjectID = {...
-%     'KM_72015'...
-%     'SM_71515'...
-%     'JH_71515'...
-%     'RL_71415'...
-%     'ND_72115'...
-%     'FO_72115'...
-%     'SG_72215'...
-%     'AG_72215'...
-%     'patricktest_71715'...
-    'SU_72915'...
-    };
+subjects = 1; %1 - multiple subjects, 0 - one subject;
+saveit = 1; %1 - save parameter values
 
-% Bs = [];
-% Ps = [];
-% Params =[];
+if subjects == 1
+    SubjectID = {...
+%         Pilot Data
+%         'KM_72015'...
+%         'SM_71515'...
+%         'JH_71515'...
+%         'RL_71415'...
+%         'ND_72115'...
+%         'FO_72115'...
+%         'SG_72215'...
+%         'AG_72215'...
 
-for i = 1:size(SubjectID,2)
+%         Pilot Data - 2
+        'AE_72915'...
+        'CA_73015'...
+        'JB_73015'...
+        'SU_72915'...
+        };
+elseif subjects == 0
+    SubjectID = input('Enter Subject Identifier: ','s'); 
+end
+
+for i = 1:length(SubjectID)
     
     %Column 1 -- Sure
     %Column 2 -- Flip
@@ -36,9 +44,6 @@ for i = 1:size(SubjectID,2)
     PrefatGambles = ChoiceTrial(:,1:3);
     PostfatGambles = FatiguedChoiceTrial(:,1:3);
 %--------------------------------------------------------------------------
-    %^^[5/1/2015]---Current issue is division of gamble data into two
-    %separate sessions. This is remedied above.
-    
     %Calculate dEVs
     dEVs = PrefatGambles(:,1) - 0.5*PrefatGambles(:,2);
     PrefatGambles = [dEVs PrefatGambles];
@@ -60,16 +65,7 @@ for i = 1:size(SubjectID,2)
     PostfatGambles(isnan(PostfatGambles(:,4)),:) = [];
     %^^ get rid of NANs
     
-    %GLM ON CHOICE DATA [Separate betas for gamble and sure vals]
 %--------------------------------------------------------------------------
-%     choice=full_gbl(:,4);
-%     gambles=full_gbl(:,2:3);
-%     
-%     [B2,dev,stats] = glmfit([gambles], choice, 'binomial', 'link', 'logit','constant','off');
-%     Bs(i,:) = B2';
-%     Ps(i,:) = stats.p';
-%--------------------------------------------------------------------------
-
     %MLE ON CHOICE DATA
 %--------------------------------------------------------------------------
     P1 = PrefatGambles(:,2:4);
@@ -105,8 +101,10 @@ for i = 1:size(SubjectID,2)
     parameters = zeros(2,2);
     parameters(1,:) = paramtracker1(i,:);
     parameters(2,:) = paramtracker2(i,:);
-    save(fullfile(SubjectDir,'parameters'),'parameters');
     
+    if saveit == 1
+        save(fullfile(SubjectDir,'parameters'),'parameters');
+    end
 %--------------------------------------------------------------------------
 end
 
