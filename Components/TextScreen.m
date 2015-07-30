@@ -1,11 +1,11 @@
 function [key,volt,timing] = TextScreen(window,message,color,varargin)
 % color is in RGB coords (ex. white: [1 1 1], green: [0 1 0], red: [1 0 0])
-% varargin is [time], ['key'], [sensor,baseline] or [time,sensor,baseline]
+% varargin is [time], ['key'], ['DAQ',baseline] or [time,'DAQ',baseline]
 % outputs are the key that's pressed (string), voltage, and timing array
 
-% global DAR IND
+global DAR
 
-% addpath('C:\Users\Steven\Documents\MATLAB\FatigueCode\DAQ functions');
+addpath('Z:\Fatigue Experiment\Code\DAQ functions');
 
 Screen('TextFont',window,'Ariel');
 Screen('TextSize',window,40);
@@ -46,24 +46,16 @@ if nargin == 4
 elseif nargin == 6
     key = NaN;
     time = varargin{1};
-    sensor = varargin{2};
     baseline = varargin{3};
-    numSample = 60*time;
-    volt = NaN(1,numSample);
-    timing = NaN(1,numSample);
-%     freq = 2000;
-%     startCollect(time,freq);
+    freq = 2000;
+    startCollect(time,freq);
     t0=GetSecs;
-    i = 0;
     while GetSecs-t0 <= time
-        i = i+1;
-        volt(i) = getsample(sensor)-baseline;
-        timing(i) = GetSecs-t0;
         DrawFormattedText(window,message,'center','center',color);
         Screen('Flip',window);
     end
-%     volt = DAR(2,:)-baseline;
-%     timing = DAR(1,:);
+    volt = DAR(2,:)-baseline;
+    timing = DAR(1,:);
 
 end
 
