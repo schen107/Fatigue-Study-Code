@@ -272,7 +272,7 @@ try
         TextScreen(window,'Get Ready',[1 1 1],1.5);
         % min reps
         for j = 1:minFatigueReps
-            [outcome,volt,timing] = ThermScreen(window,sensor,baseline,MVC,MVCFatiguePercent/100,0.05,'horizontal',time);
+            [outcome,volt,timing] = ThermScreen(window,baseline,MVC,MVCFatiguePercent/100,0.05,'horizontal',time);
             voltFatiguedChoiceTrial(j,:,i) = volt;
             timingFatiguedChoiceTrial(j,:,i) = timing;
             outcomeFatiguedChoiceTrial(i,j) = outcome;

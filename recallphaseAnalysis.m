@@ -1,10 +1,10 @@
 clear; clc
 
 rootpath = 'Z:\Fatigue Experiment\Data';
-FolderName = 'Pilot - 3'; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+FolderName = 'Pilot'; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 subjects = 1; %1 - multiple subjects, 0 - one subject;
-saveit = 1; %1 - save plot with R^2 value
+saveit = 0; %1 - save plot with R^2 value
 
 if subjects == 1
     SubjectID = {...
@@ -23,9 +23,19 @@ if subjects == 1
 %         'CA_73015'...
 %         'JB_73015'...
 %         'SU_72915'...
+        
+%         Pilot - 3
+%         'FM_73115'...
+%         'NF_8315'...
+%         'TG_8415'...
+%         'TT_8315'...
+%         'CJ_8815'...
+%         'AA_81415'...
+
         };
 elseif subjects == 0
-    SubjectID = input('Enter Subject Identifier: ','s'); 
+    SubjectID = input('Enter Subject Identifier: ','s');
+    SubjectID = cellstr(SubjectID);
 end
 
 for i = 1:length(SubjectID)

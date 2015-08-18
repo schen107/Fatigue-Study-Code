@@ -1,0 +1,16 @@
+diff a/Components/ThermScreen.m b/Components/ThermScreen.m	(rejected hunks)
+@@ -1,11 +0,11 @@
+-function [outcome,volt,timing] = ThermScreen(window,baseline,MVC,goal,successwindow,orientation,time)
++function [outcome,volt,timing] = ThermScreen(window,sensor,baseline,MVC,goal,successwindow,orientation,time)
+ % successwindow is between 0-1
+ % time is in sec
+ % orientation is either 'horizontal' or 'vertical'
+ 
+-global DAR IND
++% global DAR IND
+ 
+-addpath('C:\Users\Steven\Documents\MATLAB\FatigueCode\DAQ functions'); %Steven's Account
++% addpath('C:\Users\Steven\Documents\MATLAB\FatigueCode\DAQ functions'); %Steven's Account
+ 
+ white = WhiteIndex(window); black = BlackIndex(window);
+ [xpix,ypix] = Screen('WindowSize',window);
