@@ -2,57 +2,7 @@
 %parameters from subjects' choice data during phases 4 and 5 (which
 %correspond to the effort gamble tasks).
 
-clc;clear;
-
-rootpath = 'Z:\Fatigue Experiment\Data';
-FolderName = 'Pilot - 3'; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-subjects = 1; %1 - multiple subjects, 0 - one subject;
-%To run a paired t-test on this code, run with multiple subjects
-saveit = 0; %1 - save parameter values
-
-if subjects == 1
-    SubjectID = {...
-%         Pilot
-%         'KM_72015';...
-%         'SM_71515';...
-%         'JH_71515';...
-%         'RL_71415';...
-%         'ND_72115';...
-%         'FO_72115';...
-%         'SG_72215';...
-%         'AG_72215';...
-
-%         Pilot - 2
-%         'AE_72915';...
-%         'CA_73015';...
-%         'JB_73015';...
-%         'SU_72915';...
-        
-%         Pilot - 3
-        'FM_73115';...
-        'NF_8315';...
-        'TG_8415';...
-        'TT_8315';...
-        'CJ_8815';...
-        'PT_81015'...
-%         'AA_81415'...
-
-        };
-elseif subjects == 0
-    SubjectID = input('Enter Subject Identifier: ','s');
-    SubjectID = cellstr(SubjectID);
-end
-
-for i = 1:length(SubjectID)
-    
-    %Column 1 -- Sure
-    %Column 2 -- Flip
-%--------------------------------------------------------------------------
-    SubjectDir = char(fullfile(rootpath,FolderName,SubjectID(i)));
-    load(fullfile(SubjectDir,'ChoicePhase'));
-    load(fullfile(SubjectDir,'FatiguedChoicePhase'));
-    
+function [parameters, Pvals] = AnalyzeEffortChoice(SubjectID,ChoiceTrial,FatiguedChoiceTrial,saveit)
     PrefatGambles = ChoiceTrial(:,1:3);
     PostfatGambles = FatiguedChoiceTrial(:,1:3);
 %--------------------------------------------------------------------------
@@ -84,22 +34,22 @@ for i = 1:length(SubjectID)
     P2 = PostfatGambles(:,2:4);
     
     options = optimset('MaxFunEvals', 100000);
-
-    addpath('Z:\Fatigue Experiment\Code\Analysis Functions');
     
-    paramtracker1(i,:) = fminsearch(@loglikelihood_rhomulam_effort,[.1 1],options, P1);
-    lltracker1(1,i) = (loglikelihood_rhomulam_effort(paramtracker1(i,:),P1));
+    paramtracker1 = zeros(1,2);
+    paramtracker1(:) = fminsearch(@loglikelihood_rhomulam_effort,[.1 1],options, P1);
+    lltracker1 = (loglikelihood_rhomulam_effort(paramtracker1(:),P1));
     %This evaluates the function value at the maximized parameter estimates
     %from above.  This acts as the fitted log likelihood for the choice data. 
     
-    paramtracker2(i,:) = fminsearch(@loglikelihood_rhomulam_effort,[.1 1],options, P2);    
-    lltracker2(1,i) = (loglikelihood_rhomulam_effort(paramtracker2(i,:),P2));
+    paramtracker2 = zeros(1,2);
+    paramtracker2(:) = fminsearch(@loglikelihood_rhomulam_effort,[.1 1],options, P2);    
+    lltracker2 = (loglikelihood_rhomulam_effort(paramtracker2(:),P2));
     %Same for P2
     
-    paramtrackernull1(i,:) = fminsearch(@loglikelihood_null_effort,[.1],options, P1);
-    lltrackernull1(1,i) = (loglikelihood_null_effort(paramtrackernull1(i,:),P1));
-    paramtrackernull2(i,:) = fminsearch(@loglikelihood_null_effort,[.1],options, P2);
-    lltrackernull2(1,i) = (loglikelihood_null_effort(paramtrackernull2(i,:),P2));
+    paramtrackernull1 = fminsearch(@loglikelihood_null_effort,.1,options, P1);
+    lltrackernull1 = (loglikelihood_null_effort(paramtrackernull1,P1));
+    paramtrackernull2 = fminsearch(@loglikelihood_null_effort,.1,options, P2);
+    lltrackernull2 = (loglikelihood_null_effort(paramtrackernull2,P2));
     %For validation of these values, the likelihood under the null
     %assumptions (with the curvature parameter being one), is determined in
     %the same manner.
@@ -110,25 +60,46 @@ for i = 1:length(SubjectID)
     
     %Save resulting parameters
     parameters = zeros(2,2);
-    parameters(1,:) = paramtracker1(i,:);
-    parameters(2,:) = paramtracker2(i,:);
+    parameters(1,:) = paramtracker1(:);
+    parameters(2,:) = paramtracker2(:);
+%--------------------------------------------------------------------------
+
+    %Test Statistics using the log-liklihood ratio.
+    D1 = -2*(lltracker1-lltrackernull1);
+    D2 = -2*(lltracker2-lltrackernull2);
+
+    Pvals = zeros(2,1);
+    Pvals(1) = 1-chi2cdf(D1,1);
+    Pvals(2) = 1-chi2cdf(D2,1);
+    %^THIS IS RIGHT. Obtain p-values for these observations.
+%--------------------------------------------------------------------------
+
+    %Plotting pre and post-fatigue choice data and logistic functions
+    figure;
+    set(gcf,'name',SubjectID,'numbertitle','off')
+    xmin = 1.1*min(min(PrefatGambles(:,1)),min(PostfatGambles(:,1)));
+    xmax = 1.1*max(max(PrefatGambles(:,1)),max(PostfatGambles(:,1)));
+    axis([xmin xmax 0 1])
     
+    subplot(2,1,1);
+    PreXvector = linspace(xmin,xmax,100000);
+    Prelogfunc = (1+exp(-1*parameters(1,1)*PreXvector)).^-1;
+    hold on;
+    plot(PrefatGambles(:,1),PrefatGambles(:,4),'bo')
+    plot(PreXvector,Prelogfunc,'b')
+    
+    subplot(2,1,2);
+    PostXvector = linspace(xmin,xmax,100000);
+    Postlogfunc = (1+exp(-1*parameters(1,2)*PostXvector)).^-1;
+    hold on;
+    plot(PostfatGambles(:,1),PostfatGambles(:,4),'ro')
+    plot(PostXvector,Postlogfunc,'r')
+    
+%--------------------------------------------------------------------------
+    %saving parameters and plots
     if saveit == 1
         save(fullfile(SubjectDir,'parameters'),'parameters');
+        saveas(gcf,fullfile(SubjectDir,'LogFitPlot'),'fig');
     end
-%--------------------------------------------------------------------------
-end
 
-%Test Statistics using the log-liklihood ratio.
-D1 = -2*(lltracker1-lltrackernull1);
-D2 = -2*(lltracker2-lltrackernull2);
-% Pvals = chi2pdf(D,1);
-
-Pvals1 = 1-chi2cdf(D1,1);
-Pvals2 = 1-chi2cdf(D2,1);
-%^THIS IS RIGHT. Obtain p-values for these observations.
-
-%Paired TTest
-if subjects == 1
-    [reject, PvalsCompare] = ttest(paramtracker1(:,2),paramtracker2(:,2));
 end

@@ -17,7 +17,6 @@ try
     SubjectDir = fullfile(rootpath,FolderName,SubjectID);
     mkdir(SubjectDir);
     FileName = fullfile(SubjectDir,SubjectID);
-    save(FileName,'SubjectID');
 
     %% Setup PsychToolBox--------------------------------------------------
     PsychDefaultSetup(2);screen=max(Screen('Screens'));
@@ -412,7 +411,8 @@ try
     ChoiceFileName = fullfile(SubjectDir,'ChoicePhase');
     FatiguedChoiceFileName = fullfile(SubjectDir,'FatiguedChoicePhase');
     TrialSelectionFileName = fullfile(SubjectDir,'TrialSelectionPhase');
-
+    
+    save(FileName,'SubjectID');
     save(MVCFileName,'voltMVCTrial','timingMVCTrial');
     save(AssocFileName,'AssocTrial','voltAssocTrial','timingAssocTrial');
     save(RecallFileName,'RecallTrial','voltRecallTrial','timingRecallTrial');

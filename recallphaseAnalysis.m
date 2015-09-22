@@ -1,54 +1,18 @@
-clear; clc
-
-rootpath = 'Z:\Fatigue Experiment\Data';
-FolderName = 'Pilot'; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-subjects = 1; %1 - multiple subjects, 0 - one subject;
-saveit = 0; %1 - save plot with R^2 value
-
-if subjects == 1
-    SubjectID = {...
-%         Pilot
-%         'KM_72015'...
-%         'SM_71515'...
-%         'JH_71515'...
-%         'RL_71415'...
-%         'ND_72115'...
-%         'FO_72115'...
-%         'SG_72215'...
-%         'AG_72215'...
-
-%         Pilot - 2
-%         'AE_72915'...
-%         'CA_73015'...
-%         'JB_73015'...
-%         'SU_72915'...
-        
-%         Pilot - 3
-%         'FM_73115'...
-%         'NF_8315'...
-%         'TG_8415'...
-%         'TT_8315'...
-%         'CJ_8815'...
-%         'AA_81415'...
-
-        };
-elseif subjects == 0
-    SubjectID = input('Enter Subject Identifier: ','s');
-    SubjectID = cellstr(SubjectID);
-end
-
-for i = 1:length(SubjectID)
-    SubjectDir = char(fullfile(rootpath,FolderName,SubjectID(i)));
-    load(fullfile(SubjectDir,'RecallPhase'));
-
+function recallphaseAnalysis(SubjectID,RecallTrial,saveit)
+    % Function to analyze phase 3 data (recall phase). This determines whether
+    % or not the subject adequately understood the experiment.
+    % Inputs: 
+    % SubjectID - String corresponding to subject ID
+    % RecallTrial - 48x4 matrix consisting of data from recall phase
+    % save - 0 for no save, 1 for save
+    
     SumSquaredError = sum((RecallTrial(:,2)-RecallTrial(:,1)).^2);
     SampMean = mean(RecallTrial(:,2));
     SumSquaredMeanError = sum((RecallTrial(:,2)-SampMean).^2);
     rsquared = 1 - SumSquaredError/SumSquaredMeanError;
 
-    figure(i);
-    set(gcf,'name',char(SubjectID(i)),'numbertitle','off')
+    figure;
+    set(gcf,'name',SubjectID,'numbertitle','off')
     hold on;
     scatter(RecallTrial(:,1),RecallTrial(:,2),'*');
     line = linspace(0,100,100);
