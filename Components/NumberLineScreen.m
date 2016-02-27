@@ -1,9 +1,10 @@
-function [EffortReport,ReactTime] = NumberLineScreen(window)
-
+function [EffortReport,ReactTime,timing] = NumberLineScreen(window)
 % outputs: EffortReport - value on number line (%MVC)
 % ReactTime - time it took to make choice (s)
 
-white = WhiteIndex(window); black = BlackIndex(window);
+global TRIGGER
+
+white = WhiteIndex(window);
 [xpix,ypix] = Screen('WindowSize',window);
 xcenter = xpix/2; ycenter = ypix/2;
 
@@ -12,8 +13,10 @@ HalfLength = xpix/3;
 margin=0.5*(xpix-2*HalfLength);
 xrand=round(margin+rand*2*HalfLength);yrand=round(rand*ypix);
 SetMouse(xrand,yrand);
+i = 0;
 tic;
 while ~click(1)
+    i = i+1;
     [xmouse,~,click]=GetMouse(window);
     y=ypix/2;
     if xmouse<xcenter-HalfLength;
@@ -88,6 +91,9 @@ while ~click(1)
     Screen('DrawLines',window,LineCoords,2,white,[xcenter ycenter]);
     Screen('DrawDots',window,[xmouse y],20, white,[],1);
     Screen('Flip',window);
+    if i == 1
+        timing = GetSecs-TRIGGER;
+    end
     
     PercentPix=xmouse;
 end

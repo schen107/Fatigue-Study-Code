@@ -8,8 +8,5 @@ freq = 2000;
 addpath('Z:\Fatigue Experiment\Code\DAQ functions');
 
 startCollect(seconds,freq);
-
-% if IND ~=0
-%     getData()
-% end
-% plot(DAR(1,1:IND),DAR(2,1:IND),'b')
+WaitSecs(seconds);
+% plot(DAR(1,:),DAR(2,:))

@@ -1,14 +1,16 @@
-function [choice,ReactTime] = GambleScreen(window,flip,sure,time)
-
-% inputs: flip - gamble value (0-100)
+function [choice,ReactTime,timing] = GambleScreen(window,cedrus,flip,sure,time)
+% inputs: cedrus - dummy if not running on MRI
+% flip - gamble value (0-100)
 % sure - safe value(0-100)
 % time - time limit for choosing
 % outputs: choice - flip (1) vs sure (0)
 % ReactTime - time it took to make the choice (s)
 
-white = WhiteIndex(window); black = BlackIndex(window);
+global TRIGGER MRI
+
+white = WhiteIndex(window);
 [xpix,ypix] = Screen('WindowSize',window);
-xcenter = xpix/2; ycenter = ypix/2;
+ycenter = ypix/2;
 
 Screen('TextFont', window, 'Ariel');
 Screen('TextSize', window, 70);
@@ -55,24 +57,38 @@ DrawFormattedText(window,'Flip',0.31*xpix,0.78*ypix);
 DrawFormattedText(window,'Sure',0.6*xpix,0.61*ypix);
 
 Screen('Flip',window);
+timing = GetSecs-TRIGGER;
 
-KbName('UnifyKeyNames');
-RestrictKeysForKbCheck([77,78]);
 t0=GetSecs;
 choice = nan;
 ReactTime = nan;
-while true
+
+if MRI == 0
+    KbName('UnifyKeyNames');
+    RestrictKeysForKbCheck([77,78]);
     [~,keyCode] = KbStrokeWait([],t0+time);
     if KbName(keyCode) == 'n' %flip
         choice = 1;
         ReactTime = GetSecs-t0;
-        break
     elseif KbName(keyCode) == 'm' %sure
         choice = 0;
         ReactTime = GetSecs-t0;
-        break
     end
-    break
+    RestrictKeysForKbCheck([]);
+elseif MRI == 1
+    cedrus.resettimer();
+    while GetSecs-t0 < time
+        button = cedrus.getpress();
+        if button == 1 %flip
+            choice = 1;
+            ReactTime = GetSecs-t0;
+            break
+        elseif button == 2 %sure
+            choice = 0;
+            ReactTime = GetSecs-t0;
+            break
+        end
+    end
 end
-RestrictKeysForKbCheck([]);
+
 end

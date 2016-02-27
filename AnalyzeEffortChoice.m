@@ -2,7 +2,7 @@
 %parameters from subjects' choice data during phases 4 and 5 (which
 %correspond to the effort gamble tasks).
 
-function [parameters, Pvals] = AnalyzeEffortChoice(SubjectID,ChoiceTrial,FatiguedChoiceTrial,saveit)
+function [parameters, Pvals] = AnalyzeEffortChoice(SubjectID,SubjectDir,ChoiceTrial,FatiguedChoiceTrial,saveit)
     PrefatGambles = ChoiceTrial(:,1:3);
     PostfatGambles = FatiguedChoiceTrial(:,1:3);
 %--------------------------------------------------------------------------
@@ -83,14 +83,14 @@ function [parameters, Pvals] = AnalyzeEffortChoice(SubjectID,ChoiceTrial,Fatigue
     
     subplot(2,1,1);
     PreXvector = linspace(xmin,xmax,100000);
-    Prelogfunc = (1+exp(-1*parameters(1,1)*PreXvector)).^-1;
+    Prelogfunc = (1+exp(-1*parameters(1,2)*PreXvector)).^-1;
     hold on;
     plot(PrefatGambles(:,1),PrefatGambles(:,4),'bo')
     plot(PreXvector,Prelogfunc,'b')
     
     subplot(2,1,2);
     PostXvector = linspace(xmin,xmax,100000);
-    Postlogfunc = (1+exp(-1*parameters(1,2)*PostXvector)).^-1;
+    Postlogfunc = (1+exp(-1*parameters(2,2)*PostXvector)).^-1;
     hold on;
     plot(PostfatGambles(:,1),PostfatGambles(:,4),'ro')
     plot(PostXvector,Postlogfunc,'r')

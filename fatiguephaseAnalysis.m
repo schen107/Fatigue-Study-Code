@@ -1,4 +1,4 @@
-function fatiguephaseAnalysis(SubjectID,outcomeFatiguedChoiceTrial,saveit)
+function fatiguephaseAnalysis(SubjectID,SubjectDir,outcomeFatiguedChoiceTrial,saveit)
     % Function for plotting fatigue phase outcome data
     % Inputs: 
     % SubjectID - String corresponding to subject ID

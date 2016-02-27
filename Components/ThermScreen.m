@@ -1,13 +1,11 @@
-function [outcome,volt,timing] = ThermScreen(window,baseline,MVC,goal,successwindow,orientation,time)
-% successwindow is between 0-1
+function [outcome,volt,timing,MRITiming] = ThermScreen(window,sensor,baseline,MVC,goal,successwindow,orientation,time)
+% successwindow is percentage between 0-1
 % time is in sec
 % orientation is either 'horizontal' or 'vertical'
 
-global DAR IND
+global DAQ DAR IND TRIGGER
 
-addpath('Z:\Fatigue Experiment\Code\DAQ functions');
-
-white = WhiteIndex(window); black = BlackIndex(window);
+white = WhiteIndex(window);
 [xpix,ypix] = Screen('WindowSize',window);
 xcenter = xpix/2; ycenter = ypix/2;
 
@@ -42,35 +40,22 @@ if strcmp(orientation,'vertical')
 %     s = 0;
     i = 0;
     suc = 0;
-    freq = 2000;
-    startCollect(time,freq);
-    t0 = GetSecs;
-    while GetSecs-t0 <= time
-        i = i+1;
-        if IND ~= 0
-            data = getData();
-            voltNow = data(2)-baseline;
+    if DAQ == 0 %Old Sensor
+        volt = NaN(1,60*time);
+        timing = NaN(1,60*time);
+        t0 = GetSecs;
+        while GetSecs-t0 <= time
+            i = i+1;
+            voltNow = getsample(sensor)-baseline;
             if voltNow < 0
                 voltNow = 0;
             elseif voltNow > MVC
                 voltNow = MVC;
             end
             ForcePercent = voltNow/MVC;
-    %         Dummy Code
-    %         pause(0.01);
-    %         [~,~,keyCode]=KbCheck;
-    %         if find(keyCode)==32
-    %             s=s+1;
-    %         else
-    %             s=s-1;
-    %         end
-    %         s=min(s,100);
-    %         s=max(s,0);
-    %         volt(i) = s;
-            
             ThermBarTop = (ThermHeight*(1-ForcePercent))+ThermRect(2);
             ThermBar = [ThermBarLeft ThermBarTop ThermBarRight ThermBarBottom];
-            
+
             Screen('FrameRect',window,white,ThermRect);
             Screen('TextSize', window, fontsize);
             Screen('TextFont',window,'Arial');
@@ -83,13 +68,63 @@ if strcmp(orientation,'vertical')
                 Screen('FillRect',window,[1 0 0],SuccessRect);
             end
             Screen('DrawLines',window,LineCoord,3,white);
-
+            Screen('Flip',window);
+            if i == 1
+                MRITiming = GetSecs-TRIGGER;
+            end
+            timing(i) = GetSecs-t0;
+            volt(i) = voltNow;
         end
-        Screen('Flip',window);
+    elseif DAQ == 1 %New Sensor
+        freq = 2000;
+        startCollect(time,freq);
+        t0 = GetSecs;
+        while GetSecs-t0 <= time
+            if IND ~= 0
+                i = i+1;
+                data = getData();
+                voltNow = data(2)-baseline;
+                if voltNow < 0
+                    voltNow = 0;
+                elseif voltNow > MVC
+                    voltNow = MVC;
+                end
+                ForcePercent = voltNow/MVC;
+    %             Dummy Code
+    %             pause(0.01);
+    %             [~,~,keyCode]=KbCheck;
+    %             if find(keyCode)==32
+    %                 s=s+1;
+    %             else
+    %                 s=s-1;
+    %             end
+    %             s=min(s,100);
+    %             s=max(s,0);
+    %             volt(i) = s;
+                ThermBarTop = (ThermHeight*(1-ForcePercent))+ThermRect(2);
+                ThermBar = [ThermBarLeft ThermBarTop ThermBarRight ThermBarBottom];
+
+                Screen('FrameRect',window,white,ThermRect);
+                Screen('TextSize', window, fontsize);
+                Screen('TextFont',window,'Arial');
+                DrawFormattedText(window,PercentMVC,PercentMVCX,PercentMVCY,white);
+                Screen('FillRect',window,white,ThermBar);
+                if abs(ForcePercent-goal) < SuccessWindow
+                    Screen('FillRect',window,[0 1 0],SuccessRect);
+                    suc = suc+1;
+                else
+                    Screen('FillRect',window,[1 0 0],SuccessRect);
+                end
+                Screen('DrawLines',window,LineCoord,3,white);
+            end
+            Screen('Flip',window);
+            if i == 1
+                MRITiming = GetSecs-TRIGGER;
+            end
+        end
+        volt = DAR(2,:)-baseline;
+        timing = DAR(1,:);
     end
-    
-    volt = DAR(2,:)-baseline;
-    timing = DAR(1,:);
 
     if suc/i > 2/3
         outcome = 1;
@@ -111,32 +146,20 @@ elseif strcmp(orientation,'horizontal')
 %     s = 0;
     i = 0;
     suc = 0;
-    freq = 2000;
-    startCollect(time,freq);
-    t0 = GetSecs;
-    while GetSecs-t0 <= time
-        i = i+1;
-        if IND ~= 0
-            data = getData();
-            voltNow = data(2)-baseline;
+    if DAQ == 0 %Old Sensor
+        volt = NaN(1,60*time);
+        timing = NaN(1,60*time);
+        t0 = GetSecs;
+        while GetSecs-t0 <= time
+            i = i+1;
+            voltNow = getsample(sensor)-baseline;
             if voltNow < 0
                 voltNow = 0;
             elseif voltNow > MVC
                 voltNow = MVC;
             end
             ForcePercent = voltNow/MVC;
-%         
-%         Dummy Code
-%         pause(0.01);
-%         [~,~,keyCode]=KbCheck; 
-%         if find(keyCode)==32
-%             s=s+1;
-%         else 
-%             s=s-1;
-%         end
-%         s=min(s,100);
-%         s=max(s,0);
-%         volt(i) = s;
+            
             ThermBarRight = (ThermWidth*(ForcePercent)/goal)+ThermBarLeft;
             ThermBarRight = min(ThermRect(3),ThermBarRight);
             ThermBar = [ThermBarLeft ThermBarTop ThermBarRight ThermBarBottom];
@@ -150,13 +173,63 @@ elseif strcmp(orientation,'horizontal')
             else
                 Screen('FillRect',window,[1 0 0],ThermBar);
             end
+            Screen('Flip',window);
+            if i == 1
+                MRITiming = GetSecs-TRIGGER;
+            end
+            timing(i) = GetSecs-t0;
+            volt(i) = voltNow;
         end
-        Screen('Flip',window);
+        
+    elseif DAQ == 1 %New Sensor
+        freq = 2000;
+        startCollect(time,freq);
+        t0 = GetSecs;
+        while GetSecs-t0 <= time
+            if IND ~= 0
+                i = i+1;
+                data = getData();
+                voltNow = data(2)-baseline;
+                if voltNow < 0
+                    voltNow = 0;
+                elseif voltNow > MVC
+                    voltNow = MVC;
+                end
+                ForcePercent = voltNow/MVC;
+%                 Dummy Code
+%                 pause(0.01);
+%                 [~,~,keyCode]=KbCheck; 
+%                 if find(keyCode)==32
+%                     s=s+1;
+%                 else 
+%                     s=s-1;
+%                 end
+%                 s=min(s,100);
+%                 s=max(s,0);
+%                 volt(i) = s;
+                ThermBarRight = (ThermWidth*(ForcePercent)/goal)+ThermBarLeft;
+                ThermBarRight = min(ThermRect(3),ThermBarRight);
+                ThermBar = [ThermBarLeft ThermBarTop ThermBarRight ThermBarBottom];
+
+                Screen('FrameRect',window,white,ThermRect);
+
+                SuccessWindow = 0.05;
+                if abs(ForcePercent-goal) < SuccessWindow
+                    Screen('FillRect',window,[0 1 0],ThermBar);
+                    suc = suc+1;
+                else
+                    Screen('FillRect',window,[1 0 0],ThermBar);
+                end
+            end
+            Screen('Flip',window);
+            if i == 1
+                MRITiming = GetSecs-TRIGGER;
+            end
+        end
+        volt = DAR(2,:)-baseline;
+        timing = DAR(1,:);
     end
-    
-    volt = DAR(2,:)-baseline;
-    timing = DAR(1,:);
-    
+
     if suc/i > 2/3
         outcome = 1;
     else

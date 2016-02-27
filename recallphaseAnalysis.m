@@ -1,4 +1,4 @@
-function recallphaseAnalysis(SubjectID,RecallTrial,saveit)
+function recallphaseAnalysis(SubjectID,SubjectDir,RecallTrial,saveit)
     % Function to analyze phase 3 data (recall phase). This determines whether
     % or not the subject adequately understood the experiment.
     % Inputs: 
