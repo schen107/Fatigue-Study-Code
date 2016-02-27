@@ -1,20 +1,24 @@
-%This m-file is used to run a MLE-based analysis to extract behavioral
-%parameters from subjects' choice data during phases 4 and 5 (which
-%correspond to the effort gamble tasks).
+% Original code from Patrick Hogan, modified by Steven Chen
 
-function [parameters, Pvals] = AnalyzeEffortChoice(SubjectID,SubjectDir,ChoiceTrial,FatiguedChoiceTrial,saveit)
+% This m-file is used to run a MLE-based analysis to extract behavioral
+% parameters from subjects' choice data during phases 4 and 5 (which
+% correspond to the effort gamble tasks).
+
+function [parameters, Pvals] = AnalyzeEffortChoice(SubjectID, ...
+    SubjectDir,ChoiceTrial,FatiguedChoiceTrial,saveit)
+
     PrefatGambles = ChoiceTrial(:,1:3);
     PostfatGambles = FatiguedChoiceTrial(:,1:3);
 %--------------------------------------------------------------------------
-    %Calculate dEVs
+    % Calculate dEVs
     dEVs = PrefatGambles(:,1) - 0.5*PrefatGambles(:,2);
+    % dEV values are now listed in the first column of this 'PreFatGambles'
+    % data matrix.
     PrefatGambles = [dEVs PrefatGambles];
-    %^^dEV values are now listed in the first column of this 'PreFatGambles'
-    %data matrix.
     
+    % Sort the effort gamble choices based on dEV values.    
     [~,index]=sort(PrefatGambles(:,1));
     PrefatGambles = PrefatGambles(index,:);
-    %^^Sort the effort gamble choices based on dEV values.
 
 	%Same thing for PostfatGambles
     dEVs = PostfatGambles(:,1) - 0.5*PostfatGambles(:,2);
@@ -23,9 +27,9 @@ function [parameters, Pvals] = AnalyzeEffortChoice(SubjectID,SubjectDir,ChoiceTr
     [~,index]=sort(PostfatGambles(:,1));
     PostfatGambles = PostfatGambles(index,:);
     
+    % get rid of NANs
     PrefatGambles(isnan(PrefatGambles(:,4)),:) = [];
     PostfatGambles(isnan(PostfatGambles(:,4)),:) = [];
-    %^^ get rid of NANs
     
 %--------------------------------------------------------------------------
     %MLE ON CHOICE DATA
@@ -36,7 +40,8 @@ function [parameters, Pvals] = AnalyzeEffortChoice(SubjectID,SubjectDir,ChoiceTr
     options = optimset('MaxFunEvals', 100000);
     
     paramtracker1 = zeros(1,2);
-    paramtracker1(:) = fminsearch(@loglikelihood_rhomulam_effort,[.1 1],options, P1);
+    paramtracker1(:) = fminsearch(@loglikelihood_rhomulam_effort,[.1 1], ...
+        options, P1);
     lltracker1 = (loglikelihood_rhomulam_effort(paramtracker1(:),P1));
     %This evaluates the function value at the maximized parameter estimates
     %from above.  This acts as the fitted log likelihood for the choice data. 
