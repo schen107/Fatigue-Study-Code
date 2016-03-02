@@ -7,6 +7,7 @@ clear; close; clc
 rootpath = 'C:\Users\Steven\Desktop\Fatigue Experiment\Data';
 FolderName = {'Pilot' 'Pilot - 2' 'Pilot - 3'};
 
+
 % 0 - don't trust data, 1 - trust
 SubjectID = {...
 %         Pilot
