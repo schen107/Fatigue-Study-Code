@@ -1,9 +1,9 @@
 clear; clc;
 close all;
 
-rootpath = 'Z:\Fatigue Experiment\Data';
+rootpath = 'C:\Users\Steven\Documents\Research\Chib Lab\Data';
 FolderName = 'Pilot - 3'; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-addpath('Z:\Fatigue Experiment\Code\Analysis Functions');
+addpath('C:\Users\Steven\Documents\Research\Chib Lab\Code\Analysis Functions');
 
 subjects = 0; %1 - multiple subjects, 0 - one subject;
 saveit = 1; %1 - yes, 0 - no
@@ -30,34 +30,35 @@ if subjects == 1
 %         'NF_8315' %lab member
 %         'TG_8415' %lab member
 %         'TT_8315' %lab member
-        'CJ_8815'
-%         'PT_81015' %don't trust data
-%         'AA_81415' %don't trust data
-%         'KV_82015' %don't trust data
-        'BS_92215'
-        'LS_92415'
-%         'AA_92415' %don't trust data
-%         'CW_101315' %don't trust data
-%         'TM_101315' %don't trust data
-        'YG_10152015' 
-%         'PY_10222015' %don't use data
-        'CT_102715'
-        'Os_10302015'
-        'AI_1242015'
-        'AP_1282015'
-        'AL_1282015'
-        'IK_1282015'
-        'DA2_12102015'
-        'RH_12112015'
-        'PL_12112015'
+%         'CJ_8815'
+%         'PT_81015' %don't trust data negative parameters
+%         'AA_81415' %don't trust data negative parameters
+%         'KV_82015' %don't trust data R^2 = 0.04
+%         'BS_92215'
+%         'LS_92415'
+%         'AA_92415' %don't trust data negative parameters
+%         'CW_101315' %don't trust data didn't finish experiment
+%         'TM_101315' %don't trust data R^2 = 0.26, pulsed during fatiguephase
+%         'YG_10152015'
+%         'PY_10222015' %don't use data negative parameters
+%         'CT_102715'
+%         'Os_10302015'
+%         'AI_1242015'
+%         'AP_1282015'
+%         'AL_1282015'
+%         'IK_1282015'
+%         'DA2_12102015'
+%         'RH_12112015'
+%         'PL_12112015' %seemed to calculate expected value - fine
+%         MRI force sensor
         'JL_2102016'
         'KJ_02112016'
         'ca_2112016'
         'rv_2112015'
         'JO_02122016'
-%         'AH_2162016' %don't trust data
+%         'AH_2162016' %don't trust data negative parameters
         'CH_02172016'
-        'JY_2172016'
+%         'JY_2172016' %don't trust data R^2 = 0.414
         };
 elseif subjects == 0
     SubjectID = input('Enter Subject Identifier: ','s');

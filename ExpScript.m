@@ -13,15 +13,9 @@ MRI = 0; %1 - yes MRI, 0 - No MRI
     %% General Setup-------------------------------------------------------
     rng('shuffle'); %Generate new random seed
 %     Screen('Preference', 'SkipSyncTests', 1);
-    if MRI == 0
-        cd('Z:\Fatigue Experiment\Code');
-        addpath('Z:\Fatigue Experiment\Code\Components');
-        addpath('Z:\Fatigue Experiment\Code\DAQ functions');
-    elseif MRI == 1
-        cd('C:\Users\ChenSt\Desktop\FatigueCode');
-        addpath('C:\Users\ChenSt\Desktop\FatigueCode\Components');
-        addpath('C:\Users\ChenSt\Desktop\FatigueCode\DAQ functions');
-    end
+    cd('C:\Users\ChenSt\Desktop\FatigueCode');
+    addpath('C:\Users\ChenSt\Desktop\FatigueCode\Components');
+    addpath('C:\Users\ChenSt\Desktop\FatigueCode\DAQ functions');
     %% Setup Subject Data--------------------------------------------------
     if MRI == 0
         rootpath = 'Z:\Fatigue Experiment\Data';
