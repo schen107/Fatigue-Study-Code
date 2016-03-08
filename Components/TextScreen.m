@@ -19,6 +19,7 @@ if nargin == 4
         key = KbName(keyCode);
     
     elseif isnumeric(varargin{1})
+        key = NaN;
         time = varargin{1};
         t0=GetSecs;
         i = 0;
@@ -30,13 +31,14 @@ if nargin == 4
                 MRITiming = GetSecs-TRIGGER;
             end
         end
-        key = NaN;
+
     
     % for button box
     elseif strcmp(varargin{1},'MRI')
+        key = NaN;
+        MRITiming = NaN;
         DrawFormattedText(window,message,'center','center',color);
         Screen('Flip',window);
-        MRITiming = GetSecs-TRIGGER;
     end
     
     
