@@ -66,7 +66,7 @@ ReactTime = nan;
 if MRI == 0
     KbName('UnifyKeyNames');
     RestrictKeysForKbCheck([77,78]);
-    [~,keyCode] = KbStrokeWait([],t0+time);
+    [~,keyCode] = KbStrokeWait(-1,t0+time);
     if KbName(keyCode) == 'n' %flip
         choice = 1;
         ReactTime = GetSecs-t0;

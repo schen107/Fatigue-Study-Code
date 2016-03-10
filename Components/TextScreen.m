@@ -15,7 +15,7 @@ if nargin == 4
         DrawFormattedText(window,message,'center','center',color);
         Screen('Flip',window);
         MRITiming = GetSecs-TRIGGER;
-        [~,keyCode] = KbStrokeWait;
+        [~,keyCode] = KbStrokeWait(-1);
         key = KbName(keyCode);
     
     elseif isnumeric(varargin{1})
