@@ -313,6 +313,7 @@ try
         % save data
         ChoiceFileName = fullfile(SubjectDir,'ChoicePhase');
         save(ChoiceFileName,'ChoiceTrial','P4Timings');
+        save(fullfile(SubjectDir,'gambleShuffled'),'gambleShuffled');
 
     % session 1 MRI
     elseif MRI == 1
@@ -356,16 +357,29 @@ try
         % save data
         ChoiceFileName = fullfile(SubjectDir,'ChoicePhaseSession1');
         save(ChoiceFileName,'ChoiceTrialSession1','S1Timings');
+        save(fullfile(SubjectDir,'gambleShuffled'),'gambleShuffled');
 
         sca;
         cedrus.close();
         disp('Ready for MRI Session 2');
         return
     end
+catch
+    sca;
+    if isstruct(cedrus)
+        cedrus.close();
+    end
+    SubjectDir = fullfile(rootpath,FolderName,SubjectID);
+    FileName = fullfile(SubjectDir,'errorLogPhase1to4P1');
+    save(FileName);
+end
 
     %% Session 2 MRI (PHASE 4 PART 2)--------------------------------------
-
+try
     if MRI == 1
+        % ensure same random gamble order between phase 4 sessions.
+        load(fullfile(SubjectDir,'gambleShuffled'),'gambleShuffled');
+        
         PsychDefaultSetup(2);screen=max(Screen('Screens'));
         [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
         HideCursor(window);
@@ -413,7 +427,15 @@ try
         disp('Ready for MRI Session 3');
         return
     end
-
+catch
+    sca;
+    if isstruct(cedrus)
+        cedrus.close()
+    end
+    SubjectDir = fullfile(rootpath,FolderName,SubjectID);
+    FileName = fullfile(SubjectDir,'errorLogPhase4P2');
+    save(FileName);
+end
 
     %% PHASE 5: FATIGUED CHOICE--------------------------------------------
     % Here, we have the subjects make the same choices they made in phase
@@ -434,7 +456,7 @@ try
 %     gambles = Gambles_12_5;
 %     [r,~] = size(gambles);
 %     gambleShuffled = gambles(randperm(r),:);
-
+try
     time = 4;
     if DAQ == 0
         freq = 60;
@@ -545,6 +567,7 @@ try
         save(FatiguedChoiceFileName,'FatiguedChoiceTrial', ...
             'timingFatiguedChoiceTrial', 'voltFatiguedChoiceTrial', ...
             'outcomeFatiguedChoiceTrial', 'P5Timings');
+        save(fullfile(SubjectDir,'gambleShuffled_1'),'gambleShuffled_1');
 
     % MRI Session 3
     % Note: the number of trials per session is hard-coded to be (5, 6, 6)
@@ -652,6 +675,7 @@ try
         save(FatiguedChoiceFileName,'FatiguedChoiceTrialSession3', ...
             'timingFatiguedChoiceTrial', 'voltFatiguedChoiceTrial', ...
             'outcomeFatiguedChoiceTrial', 'S3Timings');
+        save(fullfile(SubjectDir,'gambleShuffled_1'),'gambleShuffled_1');
 
         cedrus.close();
         sca;
@@ -659,11 +683,20 @@ try
 
         return;
     end
-
+catch
+    sca;
+    if isstruct(cedrus)
+        cedrus.close()
+    end
+    SubjectDir = fullfile(rootpath,FolderName,SubjectID);
+    FileName = fullfile(SubjectDir,'errorLogPhase5P1');
+    save(FileName);
+end
     %% Session 4 MRI (PHASE 5 PART 2)------------------------------------------
     % Note: the number of trials per session is hard-coded to be (5, 6, 6)
-
+try
     if MRI == 1
+        load(fullfile(SubjectDir,'gambleShuffled_1'),'gambleShuffled_1');
         PsychDefaultSetup(2);screen=max(Screen('Screens'));
         [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
         HideCursor(window);
@@ -779,11 +812,20 @@ try
         return;
 
     end
-
+catch
+    sca;
+    if isstruct(cedrus)
+        cedrus.close()
+    end
+    SubjectDir = fullfile(rootpath,FolderName,SubjectID);
+    FileName = fullfile(SubjectDir,'errorLogPhase5P2');
+    save(FileName);
+end
     %% Session 5 MRI (PHASE 5 PART 3)------------------------------------------
     % Note: the number of trials per session is hard-coded to be (5, 6, 6)
-
+try
     if MRI == 1
+        load(fullfile(SubjectDir,'gambleShuffled_1'),'gambleShuffled_1');
         PsychDefaultSetup(2);screen=max(Screen('Screens'));
         [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
         HideCursor(window);
@@ -898,7 +940,16 @@ try
         disp('Done MRI sessions!');
         return;
     end
-
+catch
+    sca;
+    if isstruct(cedrus)
+        cedrus.close()
+    end
+    SubjectDir = fullfile(rootpath,FolderName,SubjectID);
+    FileName = fullfile(SubjectDir,'errorLogPhase5P3');
+    save(FileName);
+end
+try
     %% PHASE 6: TRIAL SELECTION--------------------------------------------
     % Here, we play out 10 of the choices that were made in the previous 2
     % phases, in order to validate that the subject is treating each
@@ -919,7 +970,10 @@ try
     % [r,~] = size(gambles);
     % gambleShuffled = gambles(randperm(r),:);
     % gambleShuffled_1 = gambles(randperm(r),:);
-
+    
+    load(fullfile(SubjectDir,'gambleShuffled'),'gambleShuffled');
+    load(fullfile(SubjectDir,'gambleShuffled_1'),'gambleShuffled_1');
+    
     if MRI == 1
         PsychDefaultSetup(2);screen=max(Screen('Screens'));
         [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
@@ -1018,6 +1072,6 @@ try
 catch
     sca;
     SubjectDir = fullfile(rootpath,FolderName,SubjectID);
-    FileName = fullfile(SubjectDir,'errorLog');
+    FileName = fullfile(SubjectDir,'errorLogP6');
     save(FileName);
 end
