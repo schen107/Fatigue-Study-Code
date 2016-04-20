@@ -5,8 +5,10 @@ function [key,volt,timing,MRITiming] = TextScreen(window,message,color,varargin)
 
 global DAQ DAR TRIGGER
 
+[~,ypix] = Screen('WindowSize',window);
+
 Screen('TextFont',window,'Ariel');
-Screen('TextSize',window,40);
+Screen('TextSize',window,round(ypix*0.75/16.875));
 
 if nargin == 4
     volt = NaN;
@@ -49,7 +51,7 @@ elseif nargin == 6
     baseline = varargin{3};
     
     if DAQ == 0 %Old Sensor
-        freq = 60;
+        freq = Screen('NominalFrameRate', window);
         numSample = freq*time;
         volt = NaN(1,numSample);
         timing = NaN(1,numSample);

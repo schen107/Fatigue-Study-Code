@@ -9,6 +9,8 @@ white = WhiteIndex(window);
 [xpix,ypix] = Screen('WindowSize',window);
 xcenter = xpix/2; ycenter = ypix/2;
 
+freq = Screen('GetFlipInterval', window);
+
 if strcmp(orientation,'vertical')
     % Draw Thermometer Frame
     ThermHeight = ypix*0.7;
@@ -35,14 +37,14 @@ if strcmp(orientation,'vertical')
     PercentMVC = num2str(goal*100);
     PercentMVCX = SuccessRect(3)+10;
     PercentMVCY = SuccessYCenter-16;
-    fontsize = 20;
+    fontsize = round(ypix*0.75/33.75);
     
 %     s = 0;
     i = 0;
     suc = 0;
     if DAQ == 0 %Old Sensor
-        volt = NaN(1,60*time);
-        timing = NaN(1,60*time);
+        volt = NaN(1,freq*time);
+        timing = NaN(1,freq*time);
         t0 = GetSecs;
         while GetSecs-t0 <= time
             i = i+1;
@@ -147,8 +149,8 @@ elseif strcmp(orientation,'horizontal')
     i = 0;
     suc = 0;
     if DAQ == 0 %Old Sensor
-        volt = NaN(1,60*time);
-        timing = NaN(1,60*time);
+        volt = NaN(1,freq*time);
+        timing = NaN(1,freq*time);
         t0 = GetSecs;
         while GetSecs-t0 <= time
             i = i+1;

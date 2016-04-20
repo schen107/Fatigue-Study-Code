@@ -13,7 +13,7 @@ white = WhiteIndex(window);
 ycenter = ypix/2;
 
 Screen('TextFont', window, 'Ariel');
-Screen('TextSize', window, 70);
+Screen('TextSize', window, round(ypix*0.75/9.643));
 
 FlipString1 = num2str(flip,'%.2f');
 FlipString2 = num2str(0);
@@ -52,7 +52,7 @@ else
 end
 %End formatting...
 
-Screen('TextSize', window, 50);
+Screen('TextSize', window, round(ypix*0.75/13.5));
 DrawFormattedText(window,'Flip',0.31*xpix,0.78*ypix);
 DrawFormattedText(window,'Sure',0.6*xpix,0.61*ypix);
 
