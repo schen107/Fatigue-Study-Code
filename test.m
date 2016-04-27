@@ -8,7 +8,7 @@ HideCursor(window);
 
 [sensor, baseline, chans] = setupDaq(window);
 t0 = GetSecs;
-ThermScreen(window,sensor,baseline,1,0.5,0.05,'vertical',4);
+ThermScreen(window,sensor,baseline,1,0.5,0.05,'horizontal',4);
 % secs=Screen('GetFlipInterval', window)
 hz=Screen('NominalFrameRate', window)
 sca;

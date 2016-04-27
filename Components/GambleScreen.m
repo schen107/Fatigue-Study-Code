@@ -13,7 +13,11 @@ white = WhiteIndex(window);
 ycenter = ypix/2;
 
 Screen('TextFont', window, 'Ariel');
-Screen('TextSize', window, round(ypix*0.75/9.643));
+if MRI == 1
+    Screen('TextSize', window, 50);
+else
+    Screen('TextSize', window, 70);
+end
 
 FlipString1 = num2str(flip,'%.2f');
 FlipString2 = num2str(0);

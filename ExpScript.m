@@ -2,7 +2,7 @@
 % Created by Steven Chen
 
 clear; clc;
-
+%% General setup
 % For switching between force sensors (DAQ) and MRI compatibilty (MRI)
 global DAQ MRI
 
@@ -16,60 +16,45 @@ global TRIGGER
 DAQ = 0; %1 - New Sensor, 0 - MRI Sensor
 MRI = 1; %1 - yes MRI, 0 - No MRI
 
-
-%% General Setup-------------------------------------------------------
-rng('shuffle'); %Generate new random seed
-% Screen('Preference', 'SkipSyncTests', 1);
 cd('C:\Users\ChenSt\Desktop\FatigueCode');
-addpath('C:\Users\ChenSt\Desktop\FatigueCode\Components');
-addpath('C:\Users\ChenSt\Desktop\FatigueCode\DAQ functions');
-%% Setup Subject Data--------------------------------------------------
-if MRI == 0
-    rootpath = 'Z:\Fatigue Experiment\Data';
-elseif MRI == 1
-    rootpath = 'C:\Users\ChenSt\Desktop\FatigueData';
-end
-SubjectID=input('Enter Subject Identifier: ','s');
-FolderName = 'Pilot - MRI1'; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-SubjectDir = fullfile(rootpath,FolderName,SubjectID);
+save('MRI','MRI');
+%%% CHANGE THIS INPUT AND ALL OTHERS WHEN EXPERIMENTAL PARADIGM CHANGES
+[rootpath,SubjectID,FolderName,SubjectDir] = setup('Pilot - MRI1');
 mkdir(SubjectDir);
 FileName = fullfile(SubjectDir,SubjectID);
-save(FileName,'SubjectID');
+save(FileName,'SubjectID', 'DAQ', 'MRI', 'DAR', 'TRIGGER');
+
+%% Setup PsychToolBox--------------------------------------------------
+PsychDefaultSetup(2);screen=max(Screen('Screens'));
+[window,~]=PsychImaging('OpenWindow',screen,[0 0 0]);
+HideCursor(window);
+
+%% Setup DAQ-----------------------------------------------------------
+% sensor = 1; %Dummy sensor
+[sensor, baseline, chans] = setupDaq(window);
+
+%% PHASE 1: MAXIMUM VOLUNTARY CONTRACTION------------------------------
+% Here we are testing the subject's MVC, and using that value to 
+% normalize the forces exerted in the subsequent parts of the 
+% experiment.
+%
+% For running only this phase
+% PsychDefaultSetup(2);screen=max(Screen('Screens'));
+% [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+% HideCursor(window);
 
 try
-    %% Setup PsychToolBox--------------------------------------------------
-    PsychDefaultSetup(2);screen=max(Screen('Screens'));
-    [window,~]=PsychImaging('OpenWindow',screen,[0 0 0]);
-    HideCursor(window);
-
-    %% Setup DAQ-----------------------------------------------------------
-    % sensor = 1; %Dummy sensor
-    [sensor, baseline, chans] = setupDaq(window);
-
-    %% PHASE 1: MAXIMUM VOLUNTARY CONTRACTION------------------------------
-    % Here we are testing the subject's MVC, and using that value to 
-    % normalize the forces exerted in the subsequent parts of the 
-    % experiment.
-    %
-    % For running only this phase
-    % PsychDefaultSetup(2);screen=max(Screen('Screens'));
-    % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-    % HideCursor(window);
-
-    if ~exist('sensor','var')
-        [sensor, baseline, chans] = setupDaq(window);
+    if ~exist('rootpath','var')
+        cd('C:\Users\ChenSt\Desktop\FatigueCode');
+        [rootpath,SubjectID,FolderName,SubjectDir] = setup('Pilot - MRI1');
+        load(fullfile(SubjectDir,SubjectID));
     end
     
-    if ~exist('rootpath','var')
-        if MRI == 0
-            rootpath = 'Z:\Fatigue Experiment\Data';
-        elseif MRI == 1
-            rootpath = 'C:\Users\ChenSt\Desktop\FatigueData';
-        end
-        SubjectID=input('Enter Subject Identifier: ','s');
-        FolderName = 'Pilot - MRI1'; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        SubjectDir = fullfile(rootpath,FolderName,SubjectID);
-        FileName = fullfile(SubjectDir,SubjectID);
+    if ~exist('sensor','var')
+        PsychDefaultSetup(2);screen=max(Screen('Screens'));
+        [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+        HideCursor(window);
+        [sensor, baseline, chans] = setupDaq(window);
     end
     
     TRIGGER = GetSecs;
@@ -81,7 +66,7 @@ try
 
     time = 4;
     if DAQ == 0
-        freq = Screen('NominalFrameRate', window) ;
+        freq = 60;
     elseif DAQ == 1
         freq = 2000;
     end
@@ -108,33 +93,37 @@ try
     % save data
     MVCFileName = fullfile(SubjectDir,'MVCPhase');
     save(MVCFileName,'MVC','voltMVCTrial','timingMVCTrial','P1Timings');
+catch
+    sca;
+    FileName = fullfile(SubjectDir,'errorLogP1');
+    save(FileName);
+    disp('Error: consult errorLogP1');
+end
 
-    %% PHASE 2: ASSOCIATION------------------------------------------------
-    % Here, we are getting the subject to associate the amount of force
-    % he/she exerts, and a number presented to them on the screen.
-    % 
-    % For running only this phase
-    % Dummy Vars
-    % MVC = 1;
-    % 
-    % PsychDefaultSetup(2);screen=max(Screen('Screens'));
-    % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-    % HideCursor(window);
-    
-    if ~exist('sensor','var')
-        [sensor, baseline, chans] = setupDaq(window);
+%% PHASE 2: ASSOCIATION------------------------------------------------
+% Here, we are getting the subject to associate the amount of force
+% he/she exerts, and a number presented to them on the screen.
+% 
+% For running only this phase
+% Dummy Vars
+% MVC = 1;
+% 
+% PsychDefaultSetup(2);screen=max(Screen('Screens'));
+% [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+% HideCursor(window);
+
+try    
+    if ~exist('rootpath','var')
+        cd('C:\Users\ChenSt\Desktop\FatigueCode');
+        [rootpath,SubjectID,FolderName,SubjectDir] = setup('Pilot - MRI1');
+        load(fullfile(SubjectDir,SubjectID));
     end
     
-    if ~exist('rootpath','var')
-        if MRI == 0
-            rootpath = 'Z:\Fatigue Experiment\Data';
-        elseif MRI == 1
-            rootpath = 'C:\Users\ChenSt\Desktop\FatigueData';
-        end
-        SubjectID=input('Enter Subject Identifier: ','s');
-        FolderName = 'Pilot - MRI1'; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        SubjectDir = fullfile(rootpath,FolderName,SubjectID);
-        FileName = fullfile(SubjectDir,SubjectID);
+    if ~exist('sensor','var')
+        PsychDefaultSetup(2);screen=max(Screen('Screens'));
+        [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+        HideCursor(window);
+        [sensor, baseline, chans] = setupDaq(window);
     end
     
     load(fullfile(SubjectDir,'MVCPhase'));
@@ -148,7 +137,7 @@ try
 
     time = 4;
     if DAQ == 0
-        freq = Screen('NominalFrameRate', window) ;
+        freq = 60;
     elseif DAQ == 1
         freq = 2000;
     end
@@ -201,34 +190,35 @@ try
     AssocFileName = fullfile(SubjectDir,'AssocPhase');
     save(AssocFileName,'AssocTrial','voltAssocTrial', ...
         'timingAssocTrial','P2Timings');
+catch
+    sca;
+    FileName = fullfile(SubjectDir,'errorLogP2');
+    save(FileName);
+    disp('Error: consult errorLogP2');
+end
 
-    %% PHASE 3: RECALL---------------------------------------------------------
-    % Here, we test to see if the subject has associated the numbers with
-    % the force exerted.
-    % 
-    % For running only this phase
-    % 
-    % Dummy Vars
-    % MVC = 1;
-    % 
-    % PsychDefaultSetup(2);screen=max(Screen('Screens'));
-    % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-    % HideCursor(window);
+%% PHASE 3: RECALL---------------------------------------------------------
+% Here, we test to see if the subject has associated the numbers with
+% the force exerted.
+% 
+% For running only this phase
+% 
+% Dummy Vars
+% MVC = 1;
+% 
+% PsychDefaultSetup(2);screen=max(Screen('Screens'));
+% [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+% HideCursor(window);
+
+try
+    if ~exist('rootpath','var')
+        cd('C:\Users\ChenSt\Desktop\FatigueCode');
+        [rootpath,SubjectID,FolderName,SubjectDir] = setup('Pilot - MRI1');
+        load(fullfile(SubjectDir,SubjectID));
+    end
     
     if ~exist('sensor','var')
         [sensor, baseline, chans] = setupDaq(window);
-    end
-    
-    if ~exist('rootpath','var')
-        if MRI == 0
-            rootpath = 'Z:\Fatigue Experiment\Data';
-        elseif MRI == 1
-            rootpath = 'C:\Users\ChenSt\Desktop\FatigueData';
-        end
-        SubjectID=input('Enter Subject Identifier: ','s');
-        FolderName = 'Pilot - MRI1'; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        SubjectDir = fullfile(rootpath,FolderName,SubjectID);
-        FileName = fullfile(SubjectDir,SubjectID);
     end
     
     load(fullfile(SubjectDir,'MVCPhase'));
@@ -240,7 +230,7 @@ try
 
     time = 4;
     if DAQ == 0
-        freq = Screen('NominalFrameRate', window) ;
+        freq = 60;
     elseif DAQ == 1
         freq = 2000;
     end
@@ -298,37 +288,29 @@ try
     end
 catch
     sca;
-    if isstruct(cedrus)
-        cedrus.close();
-    end
-    SubjectDir = fullfile(rootpath,FolderName,SubjectID);
-    FileName = fullfile(SubjectDir,'errorLogPhase1to3');
+    FileName = fullfile(SubjectDir,'errorLogP3');
     save(FileName);
+    disp('Error: consult errorLogP3');
 end
-    %% PHASE 4: CHOICE-----------------------------------------------------
-    % Here, we have the subjects choose between an effort gamble and a sure
-    % value in order to get their inherent risk preferences in the effort
-    % domain.
-    % 
-    % For running only this phase
-    % Dummy Vars
-    % MVC = 1;
-    % 
-    % PsychDefaultSetup(2);screen=max(Screen('Screens'));
-    % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-    % HideCursor(window);
+
+%% PHASE 4: CHOICE-----------------------------------------------------
+% Here, we have the subjects choose between an effort gamble and a sure
+% value in order to get their inherent risk preferences in the effort
+% domain.
+% 
+% For running only this phase
+% Dummy Vars
+% MVC = 1;
+% 
+% PsychDefaultSetup(2);screen=max(Screen('Screens'));
+% [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+% HideCursor(window);
     
 try
     if ~exist('rootpath','var')
-        if MRI == 0
-            rootpath = 'Z:\Fatigue Experiment\Data';
-        elseif MRI == 1
-            rootpath = 'C:\Users\ChenSt\Desktop\FatigueData';
-        end
-        SubjectID=input('Enter Subject Identifier: ','s');
-        FolderName = 'Pilot - MRI1'; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        SubjectDir = fullfile(rootpath,FolderName,SubjectID);
-        FileName = fullfile(SubjectDir,SubjectID);
+        cd('C:\Users\ChenSt\Desktop\FatigueCode');
+        [rootpath,SubjectID,FolderName,SubjectDir] = setup('Pilot - MRI1');
+        load(fullfile(SubjectDir,SubjectID));
     end
     
     load('C:\Users\ChenSt\Desktop\FatigueCode\Gambles_12_5.mat');
@@ -423,29 +405,24 @@ try
     end
 catch
     sca;
-    if isstruct(cedrus)
-        cedrus.close();
+    if exist('cedrus', 'var') && isstruct(cedrus)
+        cedrus.close()
     end
-    SubjectDir = fullfile(rootpath,FolderName,SubjectID);
-    FileName = fullfile(SubjectDir,'errorLogPhase4P1');
+    FileName = fullfile(SubjectDir,'errorLogP4S1');
     save(FileName);
+    disp('Error: consult errorLogP4S1');
 end
 
     %% Session 2 MRI (PHASE 4 PART 2)--------------------------------------
-try
-    if MRI == 1
-        if ~exist('rootpath','var')
-            if MRI == 0
-                rootpath = 'Z:\Fatigue Experiment\Data';
-            elseif MRI == 1
-                rootpath = 'C:\Users\ChenSt\Desktop\FatigueData';
-            end
-            SubjectID=input('Enter Subject Identifier: ','s');
-            FolderName = 'Pilot - MRI1'; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            SubjectDir = fullfile(rootpath,FolderName,SubjectID);
-            FileName = fullfile(SubjectDir,SubjectID);
-        end
     
+try
+    if ~exist('rootpath','var')
+        cd('C:\Users\ChenSt\Desktop\FatigueCode');
+        [rootpath,SubjectID,FolderName,SubjectDir] = setup('Pilot - MRI1');
+        load(fullfile(SubjectDir,SubjectID));
+    end
+    
+    if MRI == 1
         % ensure same random gamble order between phase 4 sessions.
         load(fullfile(SubjectDir,'gambleShuffled'),'gambleShuffled');
 
@@ -498,59 +475,57 @@ try
     end
 catch
     sca;
-    if isstruct(cedrus)
+    if exist('cedrus', 'var') && isstruct(cedrus)
         cedrus.close()
     end
-    SubjectDir = fullfile(rootpath,FolderName,SubjectID);
-    FileName = fullfile(SubjectDir,'errorLogPhase4P2');
+    FileName = fullfile(SubjectDir,'errorLogP4S2');
     save(FileName);
+    disp('Error: consult errorLogP4S2');
 end
 
-    %% PHASE 5: FATIGUED CHOICE--------------------------------------------
-    % Here, we have the subjects make the same choices they made in phase
-    % 4, but now they are being kept at a consistent level of motor fatigue,
-    % achieved by doing repetitive squeeze tasks in between their choice 
-    % inputs.
-    % 
-    % For running only this phase
-    % 
-    % Dummy Vars
-    % MVC = 1;
-    %     
-    % PsychDefaultSetup(2);screen=max(Screen('Screens'));
-    % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-    % HideCursor(window);
-    % 
-%     load('C:\Users\ChenSt\Desktop\FatigueCode\Gambles_12_5.mat');
-%     gambles = Gambles_12_5;
-%     [r,~] = size(gambles);
-%     gambleShuffled = gambles(randperm(r),:);
+%% PHASE 5: FATIGUED CHOICE--------------------------------------------
+% Here, we have the subjects make the same choices they made in phase
+% 4, but now they are being kept at a consistent level of motor fatigue,
+% achieved by doing repetitive squeeze tasks in between their choice 
+% inputs.
+% 
+% For running only this phase
+% 
+% Dummy Vars
+% MVC = 1;
+%     
+% PsychDefaultSetup(2);screen=max(Screen('Screens'));
+% [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+% HideCursor(window);
+
 try
-    if ~exist('sensor','var')
-        [sensor, baseline, chans] = setupDaq(window);
+    if ~exist('rootpath','var')
+        cd('C:\Users\ChenSt\Desktop\FatigueCode');
+        [rootpath,SubjectID,FolderName,SubjectDir] = setup('Pilot - MRI1');
+        load(fullfile(SubjectDir,SubjectID));
     end
     
-    if ~exist('rootpath','var')
-        if MRI == 0
-            rootpath = 'Z:\Fatigue Experiment\Data';
-        elseif MRI == 1
-            rootpath = 'C:\Users\ChenSt\Desktop\FatigueData';
-        end
-        SubjectID=input('Enter Subject Identifier: ','s');
-        FolderName = 'Pilot - MRI1'; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        SubjectDir = fullfile(rootpath,FolderName,SubjectID);
-        FileName = fullfile(SubjectDir,SubjectID);
+    if ~exist('sensor','var')
+        PsychDefaultSetup(2);screen=max(Screen('Screens'));
+        [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+        HideCursor(window);
+        [sensor, baseline, chans] = setupDaq(window);
     end
     
     load(fullfile(SubjectDir,'MVCPhase'));
     
     time = 4;
     if DAQ == 0
-        freq = Screen('NominalFrameRate', window) ;
+        freq = 60;
     elseif DAQ == 1
         freq = 2000;
     end
+    
+    load('C:\Users\ChenSt\Desktop\FatigueCode\Gambles_12_5.mat');
+    gambles = Gambles_12_5;
+    [r,~] = size(gambles);
     gambleShuffled_1 = gambles(randperm(r),:);
+    
     MVCFatiguePercent = 80; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     FailureThreshold = 75; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     numChoicesPerTrial = 10;
@@ -677,7 +652,8 @@ try
         cedrusopen;
         MRITrigger(window,cedrus);
         S3Timings.trigger = TRIGGER;
-
+        
+        count = 0;
         for i = 1:numFatigueTrials
             success = 0;
             failure = 0;
@@ -733,7 +709,6 @@ try
                 window,'Get Ready',[1 1 1],1.5);
             ChoiceLeftIndex = (i-1)*numChoicesPerTrial+1;
             ChoiceRightIndex = i*numChoicesPerTrial;
-            count = 0;
             for k = ChoiceLeftIndex:ChoiceRightIndex
                 count = count+1;
                 flip = gambleShuffled_1(k,2);
@@ -772,46 +747,46 @@ try
     end
 catch
     sca;
-    if isstruct(cedrus)
+    if exist('cedrus', 'var') && isstruct(cedrus)
         cedrus.close()
     end
-    SubjectDir = fullfile(rootpath,FolderName,SubjectID);
-    FileName = fullfile(SubjectDir,'errorLogPhase5P1');
+    FileName = fullfile(SubjectDir,'errorLogP5S1');
     save(FileName);
+    disp('Error: consult errorLogP5S1');
 end
-    %% Session 4 MRI (PHASE 5 PART 2)------------------------------------------
-    % Note: the number of trials per session is hard-coded to be (5, 6, 6)
+
+%% Session 4 MRI (PHASE 5 PART 2)------------------------------------------
+% Note: the number of trials per session is hard-coded to be (5, 6, 6)
 try
-    if ~exist('sensor','var')
-        [sensor, baseline, chans] = setupDaq(window);
+    if ~exist('rootpath','var')
+        cd('C:\Users\ChenSt\Desktop\FatigueCode');
+        [rootpath,SubjectID,FolderName,SubjectDir] = setup('Pilot - MRI1');
+        load(fullfile(SubjectDir,SubjectID));
     end
     
-    if ~exist('rootpath','var')
-        if MRI == 0
-            rootpath = 'Z:\Fatigue Experiment\Data';
-        elseif MRI == 1
-            rootpath = 'C:\Users\ChenSt\Desktop\FatigueData';
-        end
-        SubjectID=input('Enter Subject Identifier: ','s');
-        FolderName = 'Pilot - MRI1'; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        SubjectDir = fullfile(rootpath,FolderName,SubjectID);
-        FileName = fullfile(SubjectDir,SubjectID);
+    if ~exist('sensor','var')
+        PsychDefaultSetup(2);screen=max(Screen('Screens'));
+        [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+        HideCursor(window);
+        [sensor, baseline, chans] = setupDaq(window);
     end
     
     load(fullfile(SubjectDir,'MVCPhase'));
         
     if MRI == 1
-        load(fullfile(SubjectDir,'gambleShuffled_1'),'gambleShuffled_1');
         PsychDefaultSetup(2);screen=max(Screen('Screens'));
         [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
         HideCursor(window);
         
+        load(fullfile(SubjectDir,'gambleShuffled_1'),'gambleShuffled_1');
+        
         time = 4;
         if DAQ == 0
-            freq = Screen('NominalFrameRate', window) ;
+            freq = 60;
         elseif DAQ == 1
             freq = 2000;
         end
+        
         MVCFatiguePercent = 80; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         FailureThreshold = 75; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         numChoicesPerTrial = 10;
@@ -830,7 +805,8 @@ try
         cedrusopen;
         MRITrigger(window,cedrus);
         S4Timings.trigger = TRIGGER;
-
+        
+        count = 0;
         for i = 1:numFatigueTrials
             success = 0;
             failure = 0;
@@ -880,7 +856,6 @@ try
                 window,'Get Ready',[1 1 1],1.5);
             ChoiceLeftIndex = (i+4)*numChoicesPerTrial+1;
             ChoiceRightIndex = (i+5)*numChoicesPerTrial;
-            count = 0;
             for k = ChoiceLeftIndex:ChoiceRightIndex
                 count = count+1;
                 flip = gambleShuffled_1(k,2);
@@ -919,43 +894,42 @@ try
     end
 catch
     sca;
-    if isstruct(cedrus)
+    if exist('cedrus', 'var') && isstruct(cedrus)
         cedrus.close()
     end
-    SubjectDir = fullfile(rootpath,FolderName,SubjectID);
-    FileName = fullfile(SubjectDir,'errorLogPhase5P2');
+    FileName = fullfile(SubjectDir,'errorLogP5S2');
     save(FileName);
+    disp('Error: consult errorLogP5S2');
 end
-    %% Session 5 MRI (PHASE 5 PART 3)------------------------------------------
-    % Note: the number of trials per session is hard-coded to be (5, 6, 6)
+
+%% Session 5 MRI (PHASE 5 PART 3)------------------------------------------
+% Note: the number of trials per session is hard-coded to be (5, 6, 6)
 try
-    if ~exist('sensor','var')
-        [sensor, baseline, chans] = setupDaq(window);
+    if ~exist('rootpath','var')
+        cd('C:\Users\ChenSt\Desktop\FatigueCode');
+        [rootpath,SubjectID,FolderName,SubjectDir] = setup('Pilot - MRI1');
+        load(fullfile(SubjectDir,SubjectID));
     end
     
-    if ~exist('rootpath','var')
-        if MRI == 0
-            rootpath = 'Z:\Fatigue Experiment\Data';
-        elseif MRI == 1
-            rootpath = 'C:\Users\ChenSt\Desktop\FatigueData';
-        end
-        SubjectID=input('Enter Subject Identifier: ','s');
-        FolderName = 'Pilot - MRI1'; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        SubjectDir = fullfile(rootpath,FolderName,SubjectID);
-        FileName = fullfile(SubjectDir,SubjectID);
+    if ~exist('sensor','var')
+        PsychDefaultSetup(2);screen=max(Screen('Screens'));
+        [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+        HideCursor(window);
+        [sensor, baseline, chans] = setupDaq(window);
     end
     
     load(fullfile(SubjectDir,'MVCPhase'));
     
     if MRI == 1
-        load(fullfile(SubjectDir,'gambleShuffled_1'),'gambleShuffled_1');
         PsychDefaultSetup(2);screen=max(Screen('Screens'));
         [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
         HideCursor(window);
+        
+        load(fullfile(SubjectDir,'gambleShuffled_1'),'gambleShuffled_1');
 
         time = 4;
         if DAQ == 0
-            freq = Screen('NominalFrameRate', window) ;
+            freq = 60;
         elseif DAQ == 1
             freq = 2000;
         end
@@ -977,7 +951,7 @@ try
         cedrusopen;
         MRITrigger(window,cedrus);
         S5Timings.trigger = TRIGGER;
-
+        count = 0;
         for i = 1:numFatigueTrials
             success = 0;
             failure = 0;
@@ -1027,7 +1001,7 @@ try
                 window,'Get Ready',[1 1 1],1.5);
             ChoiceLeftIndex = (i+10)*numChoicesPerTrial+1;
             ChoiceRightIndex = (i+11)*numChoicesPerTrial;
-            count = 0;
+            
             for k = ChoiceLeftIndex:ChoiceRightIndex
                 count = count+1;
                 flip = gambleShuffled_1(k,2);
@@ -1065,48 +1039,47 @@ try
     end
 catch
     sca;
-    if isstruct(cedrus)
+    if exist('cedrus', 'var') && isstruct(cedrus)
         cedrus.close()
     end
-    SubjectDir = fullfile(rootpath,FolderName,SubjectID);
-    FileName = fullfile(SubjectDir,'errorLogPhase5P3');
+    FileName = fullfile(SubjectDir,'errorLogP5S3');
     save(FileName);
+    disp('Error: consult errorLogP5S3');
 end
+
+%% PHASE 6: TRIAL SELECTION------------------------------------------------
+% Here, we play out 10 of the choices that were made in the previous 2
+% phases, in order to validate that the subject is treating each
+% choice made in the previous phases independently from one another,
+% and with potential consequences.
+% 
+% For running only this phase
+% 
+% Dummy Vars
+% MVC = 1;
+% 
+% PsychDefaultSetup(2);screen=max(Screen('Screens'));
+% [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+% HideCursor(window);
+% 
+% load('Z:\Fatigue Experiment\Code\Gambles_12_5.mat');
+% gambles = Gambles_12_5;
+% [r,~] = size(gambles);
+% gambleShuffled = gambles(randperm(r),:);
+% gambleShuffled_1 = gambles(randperm(r),:);
+
 try
-    %% PHASE 6: TRIAL SELECTION--------------------------------------------
-    % Here, we play out 10 of the choices that were made in the previous 2
-    % phases, in order to validate that the subject is treating each
-    % choice made in the previous phases independently from one another,
-    % and with potential consequences.
-    % 
-    % For running only this phase
-    % 
-    % Dummy Vars
-    % MVC = 1;
-    % 
-    % PsychDefaultSetup(2);screen=max(Screen('Screens'));
-    % [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
-    % HideCursor(window);
-    % 
-    % load('Z:\Fatigue Experiment\Code\Gambles_12_5.mat');
-    % gambles = Gambles_12_5;
-    % [r,~] = size(gambles);
-    % gambleShuffled = gambles(randperm(r),:);
-    % gambleShuffled_1 = gambles(randperm(r),:);
-    if ~exist('sensor','var')
-        [sensor, baseline, chans] = setupDaq(window);
+    if ~exist('rootpath','var')
+        cd('C:\Users\ChenSt\Desktop\FatigueCode');
+        [rootpath,SubjectID,FolderName,SubjectDir] = setup('Pilot - MRI1');
+        load(fullfile(SubjectDir,SubjectID));
     end
     
-    if ~exist('rootpath','var')
-        if MRI == 0
-            rootpath = 'Z:\Fatigue Experiment\Data';
-        elseif MRI == 1
-            rootpath = 'C:\Users\ChenSt\Desktop\FatigueData';
-        end
-        SubjectID=input('Enter Subject Identifier: ','s');
-        FolderName = 'Pilot - MRI1'; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        SubjectDir = fullfile(rootpath,FolderName,SubjectID);
-        FileName = fullfile(SubjectDir,SubjectID);
+    if ~exist('sensor','var')
+        PsychDefaultSetup(2);screen=max(Screen('Screens'));
+        [window,windowRect]=PsychImaging('OpenWindow',screen,[0 0 0]);
+        HideCursor(window);
+        [sensor, baseline, chans] = setupDaq(window);
     end
     
     load(fullfile(SubjectDir,'MVCPhase'));
@@ -1128,14 +1101,21 @@ try
 
     time = 4;
     if DAQ == 0
-        freq = Screen('NominalFrameRate', window) ;
+        freq = 60;
     elseif DAQ == 1
         freq = 2000;
     end
     % Randomly select 10 choice trials from pre/post fatigue
     if MRI == 0
+        load(fullfile(SubjectDir,'ChoicePhase'));
+        load(fullfile(SubjectDir,'FatiguedChoicePhase'));
         CombinedTrial = [ChoiceTrial; FatiguedChoiceTrial];
     elseif MRI == 1
+        load(fullfile(SubjectDir,'ChoicePhaseSession1'));
+        load(fullfile(SubjectDir,'ChoicePhaseSession2'));
+        load(fullfile(SubjectDir,'FatiguedChoicePhaseSession3'));
+        load(fullfile(SubjectDir,'FatiguedChoicePhaseSession4'));
+        load(fullfile(SubjectDir,'FatiguedChoicePhaseSession5'));
         CombinedTrial = [ChoiceTrialSession1; ChoiceTrialSession2; ...
             FatiguedChoiceTrialSession3; FatiguedChoiceTrialSession4; ...
             FatiguedChoiceTrialSession5];
@@ -1210,7 +1190,7 @@ try
 
 catch
     sca;
-    SubjectDir = fullfile(rootpath,FolderName,SubjectID);
     FileName = fullfile(SubjectDir,'errorLogP6');
     save(FileName);
+    disp('Error: consult errorLogP6');
 end

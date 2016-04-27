@@ -9,7 +9,7 @@ white = WhiteIndex(window);
 [xpix,ypix] = Screen('WindowSize',window);
 xcenter = xpix/2; ycenter = ypix/2;
 
-freq = Screen('GetFlipInterval', window);
+freq = Screen('NominalFrameRate', window);
 
 if strcmp(orientation,'vertical')
     % Draw Thermometer Frame
@@ -77,6 +77,11 @@ if strcmp(orientation,'vertical')
             timing(i) = GetSecs-t0;
             volt(i) = voltNow;
         end
+        if length(timing) > 240
+            timing(241:end) = [];
+            volt(241:end) = [];
+        end
+            
     elseif DAQ == 1 %New Sensor
         freq = 2000;
         startCollect(time,freq);
@@ -181,6 +186,10 @@ elseif strcmp(orientation,'horizontal')
             end
             timing(i) = GetSecs-t0;
             volt(i) = voltNow;
+        end
+        if length(timing) > 240
+            timing(241:end) = [];
+            volt(241:end) = [];
         end
         
     elseif DAQ == 1 %New Sensor
