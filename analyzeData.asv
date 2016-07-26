@@ -81,30 +81,27 @@ if kki == 1
     addpath('C:\Users\ChenSt\Desktop\FatigueCode\Analysis Functions');
 else
     rootpath = 'C:\Users\Steven\Documents\Research\Chib Lab\Data';
-    addpath('C:\Users\Steven\Documents\Research\Chib Lab\Code\Analysis Functions');
+    addpath('C:\Users\Steven\Documents\Research\Chib Lab\Code\' + ...
+        'Analysis Functions');
 end
 
 parameter_array = zeros(length(SubjectID),2);
 for i = 1:length(SubjectID)
     SubjectDir = fullfile(rootpath,FolderName,SubjectID{i});
     load(fullfile(SubjectDir,'RecallPhase'));
-    temp = [];
     if mri == 1
         load(fullfile(SubjectDir,'ChoicePhaseSession1'));
         load(fullfile(SubjectDir,'ChoicePhaseSession2'));
         load(fullfile(SubjectDir,'FatiguedChoicePhaseSession3'));
-        temp = [temp; outcomeFatiguedChoiceTrial];
         load(fullfile(SubjectDir,'FatiguedChoicePhaseSession4'));
-        temp = [temp; outcomeFatiguedChoiceTrial];
         load(fullfile(SubjectDir,'FatiguedChoicePhaseSession5'));
-        outcomeFatiguedChoiceTrial = [temp; outcomeFatiguedChoiceTrial];
         ChoiceTrial = [ChoiceTrialSession1; ChoiceTrialSession2];
         FatiguedChoiceTrial = [FatiguedChoiceTrialSession3; 
             FatiguedChoiceTrialSession4; FatiguedChoiceTrialSession5];
     else
         load(fullfile(SubjectDir,'ChoicePhase'));
         load(fullfile(SubjectDir,'FatiguedChoicePhase'));
-    end
+
     
     recallphaseAnalysis(SubjectID{i},SubjectDir,RecallTrial,saveit);
     fatiguephaseAnalysis(SubjectID{i},SubjectDir,outcomeFatiguedChoiceTrial,saveit);
