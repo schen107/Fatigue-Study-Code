@@ -69,6 +69,9 @@ if subjects == 1
         'OE_7132016'
         'NM_7142016'
         'TS_7202016'
+        'ML_7262016' %don't trust data - sure for all of post-fatigue
+        'MJ_7282016'
+        'KC_7292016'
         };
 elseif subjects == 0
     SubjectID = input('Enter Subject Identifier: ','s');
